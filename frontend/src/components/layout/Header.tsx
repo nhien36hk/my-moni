@@ -1,4 +1,5 @@
 import { Bell, Settings, Plus } from 'lucide-react';
+import { NavLink, Link } from 'react-router-dom';
 
 interface HeaderProps {
   onAddClick: () => void;
@@ -18,7 +19,7 @@ export default function Header({ onAddClick }: HeaderProps) {
       <div className="max-w-6xl mx-auto px-4 md:px-6">
         <div className="flex items-center justify-between h-14 md:h-16">
           {/* Logo */}
-          <div className="flex items-center gap-2">
+          <Link to="/" className="flex items-center gap-2">
             <h1
               className="text-xl font-black italic tracking-tighter"
               style={{
@@ -29,19 +30,41 @@ export default function Header({ onAddClick }: HeaderProps) {
             >
               BudgetFlow
             </h1>
-          </div>
+          </Link>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-1 bg-white/5 p-1 rounded-2xl">
-            <button className="px-4 py-1.5 rounded-xl text-xs font-semibold bg-white/10 text-white shadow-sm">
+            <NavLink 
+              to="/" 
+              end
+              className={({ isActive }) => 
+                `px-4 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+                  isActive ? 'bg-white/10 text-white shadow-sm' : 'text-[var(--text-secondary)] hover:text-white'
+                }`
+              }
+            >
               Tổng quan
-            </button>
-            <button className="px-4 py-1.5 rounded-xl text-xs font-medium text-[var(--text-secondary)] hover:text-white transition-colors">
+            </NavLink>
+            <NavLink 
+              to="/transactions" 
+              className={({ isActive }) => 
+                `px-4 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+                  isActive ? 'bg-white/10 text-white shadow-sm' : 'text-[var(--text-secondary)] hover:text-white'
+                }`
+              }
+            >
               Giao dịch
-            </button>
-            <button className="px-4 py-1.5 rounded-xl text-xs font-medium text-[var(--text-secondary)] hover:text-white transition-colors">
+            </NavLink>
+            <NavLink 
+              to="/goals" 
+              className={({ isActive }) => 
+                `px-4 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+                  isActive ? 'bg-white/10 text-white shadow-sm' : 'text-[var(--text-secondary)] hover:text-white'
+                }`
+              }
+            >
               Mục tiêu
-            </button>
+            </NavLink>
           </nav>
 
           {/* Actions */}
@@ -63,9 +86,9 @@ export default function Header({ onAddClick }: HeaderProps) {
                 <Bell size={18} />
                 <span className="absolute top-1 right-1 w-1.5 h-1.5 bg-[var(--danger)] rounded-full border border-[var(--bg-primary)]"></span>
               </button>
-              <button className="p-1.5 text-[var(--text-secondary)] hover:text-white transition-colors">
+              <Link to="/settings" className="p-1.5 text-[var(--text-secondary)] hover:text-white transition-colors">
                 <Settings size={18} />
-              </button>
+              </Link>
             </div>
           </div>
         </div>

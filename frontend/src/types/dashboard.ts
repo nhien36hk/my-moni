@@ -12,6 +12,16 @@ export interface Transaction {
   date: string;
 }
 
+export interface Goal {
+  id: string;
+  title: string;
+  targetAmount: number;
+  currentAmount: number;
+  deadline: string;
+  icon: ReactNode;
+  color: string;
+}
+
 export interface StatusConfig {
   label: string;
   color: string;

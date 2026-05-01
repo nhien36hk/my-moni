@@ -1,24 +1,11 @@
-import { LayoutDashboard, ArrowUpDown, Target, Plus } from 'lucide-react';
-
-interface NavItem {
-  icon: React.ReactNode;
-  label: string;
-  id: string;
-}
+import { LayoutDashboard, ArrowUpDown, Target, Plus, User } from 'lucide-react';
+import { NavLink } from 'react-router-dom';
 
 interface BottomNavProps {
   onAddClick: () => void;
 }
 
-const NAV_ITEMS: NavItem[] = [
-  { icon: <LayoutDashboard size={20} />, label: 'Tổng quan', id: 'dashboard' },
-  { icon: <ArrowUpDown size={20} />, label: 'Giao dịch', id: 'transactions' },
-  { icon: <Target size={20} />, label: 'Mục tiêu', id: 'goals' },
-];
-
 export default function BottomNav({ onAddClick }: BottomNavProps) {
-  const activeTab = 'dashboard';
-
   return (
     <nav
       className="fixed bottom-0 left-0 right-0 z-50 md:hidden"
@@ -30,21 +17,30 @@ export default function BottomNav({ onAddClick }: BottomNavProps) {
       }}
     >
       <div className="flex items-center justify-around px-2 py-2 max-w-md mx-auto relative">
-        {/* Nav items bên trái */}
-        {NAV_ITEMS.slice(0, 2).map((item) => (
-          <button
-            key={item.id}
-            className={`flex flex-col items-center gap-0.5 px-4 py-2 rounded-xl transition-colors
-              ${
-                activeTab === item.id
-                  ? 'text-[var(--accent-primary)]'
-                  : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
-              }`}
-          >
-            {item.icon}
-            <span className="text-[10px] font-medium">{item.label}</span>
-          </button>
-        ))}
+        <NavLink
+          to="/"
+          end
+          className={({ isActive }) => 
+            `flex flex-col items-center gap-0.5 px-4 py-2 rounded-xl transition-colors ${
+              isActive ? 'text-[var(--accent-primary)]' : 'text-[var(--text-secondary)]'
+            }`
+          }
+        >
+          <LayoutDashboard size={20} />
+          <span className="text-[10px] font-medium">Tổng quan</span>
+        </NavLink>
+
+        <NavLink
+          to="/transactions"
+          className={({ isActive }) => 
+            `flex flex-col items-center gap-0.5 px-4 py-2 rounded-xl transition-colors ${
+              isActive ? 'text-[var(--accent-primary)]' : 'text-[var(--text-secondary)]'
+            }`
+          }
+        >
+          <ArrowUpDown size={20} />
+          <span className="text-[10px] font-medium">Giao dịch</span>
+        </NavLink>
 
         {/* Nút FAB ở giữa */}
         <button
@@ -60,21 +56,29 @@ export default function BottomNav({ onAddClick }: BottomNavProps) {
           <Plus size={26} strokeWidth={2.5} />
         </button>
 
-        {/* Nav items bên phải */}
-        {NAV_ITEMS.slice(2).map((item) => (
-          <button
-            key={item.id}
-            className={`flex flex-col items-center gap-0.5 px-4 py-2 rounded-xl transition-colors
-              ${
-                activeTab === item.id
-                  ? 'text-[var(--accent-primary)]'
-                  : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
-              }`}
-          >
-            {item.icon}
-            <span className="text-[10px] font-medium">{item.label}</span>
-          </button>
-        ))}
+        <NavLink
+          to="/goals"
+          className={({ isActive }) => 
+            `flex flex-col items-center gap-0.5 px-4 py-2 rounded-xl transition-colors ${
+              isActive ? 'text-[var(--accent-primary)]' : 'text-[var(--text-secondary)]'
+            }`
+          }
+        >
+          <Target size={20} />
+          <span className="text-[10px] font-medium">Mục tiêu</span>
+        </NavLink>
+
+        <NavLink
+          to="/settings"
+          className={({ isActive }) => 
+            `flex flex-col items-center gap-0.5 px-4 py-2 rounded-xl transition-colors ${
+              isActive ? 'text-[var(--accent-primary)]' : 'text-[var(--text-secondary)]'
+            }`
+          }
+        >
+          <User size={20} />
+          <span className="text-[10px] font-medium">Cá nhân</span>
+        </NavLink>
       </div>
     </nav>
   );
