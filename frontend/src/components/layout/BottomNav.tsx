@@ -6,20 +6,24 @@ interface NavItem {
   id: string;
 }
 
+interface BottomNavProps {
+  onAddClick: () => void;
+}
+
 const NAV_ITEMS: NavItem[] = [
   { icon: <LayoutDashboard size={20} />, label: 'Tổng quan', id: 'dashboard' },
   { icon: <ArrowUpDown size={20} />, label: 'Giao dịch', id: 'transactions' },
   { icon: <Target size={20} />, label: 'Mục tiêu', id: 'goals' },
 ];
 
-export default function BottomNav() {
+export default function BottomNav({ onAddClick }: BottomNavProps) {
   const activeTab = 'dashboard';
 
   return (
     <nav
       className="fixed bottom-0 left-0 right-0 z-50 md:hidden"
       style={{
-        background: 'rgba(15, 15, 35, 0.85)',
+        background: 'rgba(15, 11, 23, 0.85)',
         backdropFilter: 'blur(20px)',
         WebkitBackdropFilter: 'blur(20px)',
         borderTop: '1px solid var(--border-glass)',
@@ -33,7 +37,7 @@ export default function BottomNav() {
             className={`flex flex-col items-center gap-0.5 px-4 py-2 rounded-xl transition-colors
               ${
                 activeTab === item.id
-                  ? 'text-[var(--accent-indigo)]'
+                  ? 'text-[var(--accent-primary)]'
                   : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
               }`}
           >
@@ -44,11 +48,12 @@ export default function BottomNav() {
 
         {/* Nút FAB ở giữa */}
         <button
+          onClick={onAddClick}
           className="w-14 h-14 -mt-8 rounded-2xl flex items-center justify-center
                      text-white shadow-lg transition-transform active:scale-90"
           style={{
             background: 'var(--gradient-primary)',
-            boxShadow: '0 8px 30px rgba(99, 102, 241, 0.4)',
+            boxShadow: '0 8px 30px rgba(244, 114, 182, 0.4)',
           }}
           aria-label="Thêm giao dịch"
         >
@@ -62,7 +67,7 @@ export default function BottomNav() {
             className={`flex flex-col items-center gap-0.5 px-4 py-2 rounded-xl transition-colors
               ${
                 activeTab === item.id
-                  ? 'text-[var(--accent-indigo)]'
+                  ? 'text-[var(--accent-primary)]'
                   : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
               }`}
           >
