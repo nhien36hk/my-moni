@@ -13,9 +13,12 @@ import {
   Pencil
 } from 'lucide-react';
 
+import type { Transaction } from '../../types/dashboard';
+
 interface AddTransactionModalProps {
   isOpen: boolean;
   onClose: () => void;
+  transactionToEdit?: Transaction | null;
 }
 
 const COMMON_CATEGORIES = [
@@ -27,35 +30,69 @@ const COMMON_CATEGORIES = [
   { id: '6', name: 'Khác', icon: <Wallet size={20} />, color: '#94a3b8' },
 ];
 
-export default function AddTransactionModal({ isOpen, onClose }: AddTransactionModalProps) {
+import { useTransactions } from '../../hooks/useTransactions';
+
+export default function AddTransactionModal({ isOpen, onClose, transactionToEdit }: AddTransactionModalProps) {
   const [type, setType] = useState<'income' | 'expense'>('expense');
   const [amount, setAmount] = useState('');
   const [note, setNote] = useState('');
   const [selectedCat, setSelectedCat] = useState(COMMON_CATEGORIES[0].name);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const amountInputRef = useRef<HTMLInputElement>(null);
+  
+  const { addTransaction, updateTransaction } = useTransactions();
 
-  // Auto focus vào ô nhập tiền khi mở modal
+  // Auto focus vào ô nhập tiền và init data nếu là sửa
   useEffect(() => {
     if (isOpen) {
+      if (transactionToEdit) {
+        setType(transactionToEdit.isIncome ? 'income' : 'expense');
+        setAmount(transactionToEdit.amount.toString());
+        setNote(transactionToEdit.name);
+        setSelectedCat(transactionToEdit.category);
+      } else {
+        setAmount('');
+        setNote(COMMON_CATEGORIES[0].name);
+        setType('expense');
+        setSelectedCat(COMMON_CATEGORIES[0].name);
+      }
       setTimeout(() => amountInputRef.current?.focus(), 300);
-      setNote(COMMON_CATEGORIES[0].name); // Mặc định note là category đầu tiên
     } else {
-      setAmount('');
-      setNote('');
-      setType('expense');
+      setIsSubmitting(false);
     }
-  }, [isOpen]);
+  }, [isOpen, transactionToEdit]);
 
   const handleSelectCategory = (catName: string) => {
     setSelectedCat(catName);
     setNote(catName); // Tự động điền note theo danh mục để nhanh hơn
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!amount) return;
-    console.log('Thêm giao dịch:', { type, amount, category: selectedCat, note: note || selectedCat });
-    onClose();
+    if (!amount || isSubmitting) return;
+    
+    setIsSubmitting(true);
+    const data = {
+      name: note || selectedCat,
+      amount: Number(amount),
+      category: selectedCat,
+      isIncome: type === 'income',
+      date: transactionToEdit ? transactionToEdit.date : new Date().toISOString()
+    };
+
+    let success = false;
+    if (transactionToEdit) {
+      success = await updateTransaction(transactionToEdit.id, data);
+    } else {
+      success = await addTransaction(data);
+    }
+
+    if (success) {
+      onClose();
+    } else {
+      alert("Có lỗi xảy ra khi lưu giao dịch!");
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -84,7 +121,9 @@ export default function AddTransactionModal({ isOpen, onClose }: AddTransactionM
             >
               {/* Header Modal */}
               <div className="flex items-center justify-between p-5 border-b border-white/5">
-                <h3 className="text-lg font-bold text-white">Thêm giao dịch mới</h3>
+                <h3 className="text-lg font-bold text-white">
+                  {transactionToEdit ? 'Chỉnh sửa giao dịch' : 'Thêm giao dịch mới'}
+                </h3>
                 <button 
                   onClick={onClose}
                   className="w-8 h-8 flex items-center justify-center rounded-full bg-white/5 hover:bg-white/10 transition-colors"
@@ -192,7 +231,7 @@ export default function AddTransactionModal({ isOpen, onClose }: AddTransactionM
                              shadow-[0_10px_25px_rgba(244,114,182,0.4)]
                              hover:scale-[1.02] active:scale-[0.98]"
                 >
-                  Xác nhận giao dịch
+                  {isSubmitting ? 'Đang lưu...' : (transactionToEdit ? 'Lưu thay đổi' : 'Xác nhận giao dịch')}
                 </button>
               </form>
             </motion.div>

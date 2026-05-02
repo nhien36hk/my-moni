@@ -21,6 +21,16 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'Backend is running' });
 });
 
+// Import Routes
+const authRoutes = require('./routes/authRoutes');
+const transactionRoutes = require('./routes/transactionRoutes');
+const goalRoutes = require('./routes/goalRoutes');
+
+// Mount Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/transactions', transactionRoutes);
+app.use('/api/goals', goalRoutes);
+
 app.listen(PORT, () => {
   console.log(`🚀 Backend is running on port ${PORT}`);
 });

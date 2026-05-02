@@ -1,11 +1,13 @@
+import { Pencil } from 'lucide-react';
 import type { Transaction } from '../../types/dashboard';
 import { formatMoney } from '../../utils/format';
 
 interface RecentTransactionsProps {
   transactions: Transaction[];
+  onEdit?: (transaction: Transaction) => void;
 }
 
-export default function RecentTransactions({ transactions }: RecentTransactionsProps) {
+export default function RecentTransactions({ transactions, onEdit }: RecentTransactionsProps) {
   return (
     <section className="glass-card p-5 md:p-6">
       <div className="flex justify-between items-center mb-4">
@@ -48,13 +50,23 @@ export default function RecentTransactions({ transactions }: RecentTransactionsP
               </p>
             </div>
 
-            {/* Amount */}
-            <p
-              className="text-sm font-bold tabular-nums shrink-0"
-              style={{ color: tx.isIncome ? 'var(--success)' : 'var(--danger)' }}
-            >
-              {tx.isIncome ? '+' : '-'}{formatMoney(tx.amount)}
-            </p>
+            {/* Amount & Edit */}
+            <div className="flex items-center gap-3">
+              <p
+                className="text-sm font-bold tabular-nums shrink-0"
+                style={{ color: tx.isIncome ? 'var(--success)' : 'var(--danger)' }}
+              >
+                {tx.isIncome ? '+' : '-'}{formatMoney(tx.amount)}
+              </p>
+              {onEdit && (
+                <button 
+                  onClick={() => onEdit(tx)}
+                  className="p-2 rounded-xl bg-white/5 text-white/40 hover:text-white hover:bg-white/10 transition-all border border-white/5"
+                >
+                  <Pencil size={10} />
+                </button>
+              )}
+            </div>
           </div>
         ))}
       </div>
