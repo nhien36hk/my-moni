@@ -44,7 +44,7 @@ services:
     build: ./frontend
     container_name: budget-frontend
     ports:
-      - "5173:5173"
+      - "80:5173"
     volumes:
       - ./frontend:/app
       - /app/node_modules # Giữ lại node_modules trong container
