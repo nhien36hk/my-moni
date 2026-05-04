@@ -10,5 +10,6 @@ export default defineConfig({
     },
     host: true, // Cho phép truy cập từ network
     port: 5173,
+    allowedHosts: ['mymony.me'],
   }
 })
