@@ -11,5 +11,12 @@ export default defineConfig({
     host: true, // Cho phép truy cập từ network
     port: 5173,
     allowedHosts: ['mymony.me'],
+    proxy: {
+      '/api': {
+        target: 'http://backend:5000',
+        changeOrigin: true,
+      },
+    },
   }
 })
+
