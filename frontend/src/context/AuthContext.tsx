@@ -30,6 +30,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (storedToken && storedUser) {
       setToken(storedToken);
       setUser(JSON.parse(storedUser));
+    } else {
+      // Tránh vòng lặp vô tận khi ở trang auth
+      const isAuthPage = window.location.pathname === '/login' || window.location.pathname === '/register';
+      if (!isAuthPage) {
+        window.location.href = '/login';
+      }
     }
   }, []);
 
