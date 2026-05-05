@@ -1,40 +1,29 @@
 import React, { useState } from 'react';
 import { User, Mail, Lock, ChevronRight } from 'lucide-react';
-import { useNavigate, Link } from 'react-router-dom';
-import { API_BASE_URL } from '../api/config';
+import { Link } from 'react-router-dom';
+import { useAuthActions } from '../hooks/useAuthActions';
 
 export default function Register() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const navigate = useNavigate();
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [localError, setLocalError] = useState<string | null>(null);
+  const { handleRegister, isLoading, error: apiError } = useAuthActions();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
-    setIsLoading(true);
+    setLocalError(null);
 
-    try {
-      const response = await fetch(`${API_BASE_URL}/auth/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, password })
-      });
-      const result = await response.json();
-
-      if (result.success) {
-        navigate('/login');
-      } else {
-        setError(result.error || 'Đăng ký thất bại');
-      }
-    } catch (err) {
-      setError('Có lỗi xảy ra, vui lòng thử lại');
-    } finally {
-      setIsLoading(false);
+    if (password !== confirmPassword) {
+      setLocalError('Mật khẩu xác nhận không khớp');
+      return;
     }
+
+    await handleRegister(name, email, password);
   };
+
+  const displayError = localError || apiError;
 
   return (
     <div className="min-h-[90vh] flex flex-col justify-center px-4 py-12">
@@ -45,9 +34,9 @@ export default function Register() {
         </div>
 
         <form onSubmit={handleSubmit} className="glass-card p-8 space-y-6">
-          {error && (
+          {displayError && (
             <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-500 text-sm text-center">
-              {error}
+              {displayError}
             </div>
           )}
           <div className="space-y-4">
@@ -93,6 +82,21 @@ export default function Register() {
                   className="w-full bg-white/5 border border-white/5 rounded-2xl py-4 pl-12 pr-4 text-white outline-none focus:border-[var(--accent-primary)] transition-all"
                   required
                   minLength={6}
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-white/60 ml-1">Xác nhận mật khẩu</label>
+              <div className="relative">
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" size={18} />
+                <input 
+                  type="password" 
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="w-full bg-white/5 border border-white/5 rounded-2xl py-4 pl-12 pr-4 text-white outline-none focus:border-[var(--accent-primary)] transition-all"
+                  required
                 />
               </div>
             </div>

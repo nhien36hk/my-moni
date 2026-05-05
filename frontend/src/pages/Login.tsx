@@ -1,41 +1,16 @@
 import React, { useState } from 'react';
 import { Mail, Lock, ChevronRight } from 'lucide-react';
-import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import { API_BASE_URL } from '../api/config';
+import { Link } from 'react-router-dom';
+import { useAuthActions } from '../hooks/useAuthActions';
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const navigate = useNavigate();
-  const { login } = useAuth();
+  const { handleLogin, isLoading, error } = useAuthActions();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
-    setIsLoading(true);
-
-    try {
-      const response = await fetch(`${API_BASE_URL}/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
-      });
-      const result = await response.json();
-
-      if (result.success) {
-        login(result.token, result.user);
-        navigate('/');
-      } else {
-        setError(result.error || 'Đăng nhập thất bại');
-      }
-    } catch (err) {
-      setError('Có lỗi xảy ra, vui lòng thử lại');
-    } finally {
-      setIsLoading(false);
-    }
+    await handleLogin(email, password);
   };
 
   return (

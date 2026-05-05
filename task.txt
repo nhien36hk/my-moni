@@ -1,0 +1,13 @@
+1. Confirm password
+2. Phần giao dịch thêm thu nhập hiển thị danh sách khác
+3. Thêm dấu phẩy khi nhập tiền giao dịch
+4. Xóa số 0 khi thêm mục tiêu
+5. Lịch sử ở phần giao dịch ẩn đi, chỉ khi nhấn vào cột mới hiện ra lịch sử của ngày đấy
+6. Lịch sử mục tiêu xóa hardcode đi
+7. Phần mục tiêu sửa cho người dùng dễ sử dụng 
+8. Thêm mục tiêu năm nhưng ẩn đi 
+9. Giao dịch có phần cuộn theo từng năm 
+10. Thêm lựa chọn ghi chú trong giao dịch
+11. Hai chế độ, chế độ cá nhân và chế độ gia đình. Chế độ cá nhân thì là mặc định, vào trong cài đặt sẽ có chuyển chế độ mặc định sang cá nhân hay gia đình, gia đình yêu cầu nhập id và password hoặc là tạo mới như tạo tài khoản cá nhân. Chế độ gia đình khi mà nhập giao dịch thì sẽ ghi tên người nhập để mà phân biệt
+12. Phần sửa sẽ được hiển thị ở trong thông tin chi tiết
+13. Hiện tại kiểu như nó đang chưa đăng nhập vẫn hiển thị trang chủ.
