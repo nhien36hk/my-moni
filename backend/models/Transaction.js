@@ -29,6 +29,11 @@ const transactionSchema = new mongoose.Schema({
     type: Date,
     required: true,
     default: Date.now // Ngày diễn ra giao dịch
+  },
+  description: {
+    type: String,
+    default: '',
+    trim: true
   }
 }, {
   timestamps: true

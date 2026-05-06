@@ -34,7 +34,7 @@ exports.getTransactions = async (req, res) => {
 // [POST] Thêm giao dịch mới
 exports.addTransaction = async (req, res) => {
   try {
-    const { name, amount, category, isIncome, date } = req.body;
+    const { name, amount, category, isIncome, date, description } = req.body;
     const userId = req.user.id;
 
     const newTransaction = await Transaction.create({
@@ -43,7 +43,8 @@ exports.addTransaction = async (req, res) => {
       amount,
       category,
       isIncome,
-      date
+      date,
+      description
     });
 
     res.status(201).json({ success: true, data: newTransaction });

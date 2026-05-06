@@ -11,12 +11,19 @@ interface EditGoalModalProps {
 }
 
 export default function EditGoalModal({ isOpen, onClose, initialAmount, month, onSave }: EditGoalModalProps) {
-  const [amount, setAmount] = useState(initialAmount.toString());
+  // Helper để format số có dấu phẩy
+  const formatDisplayAmount = (val: string) => {
+    if (!val || val === '0') return '';
+    const num = val.replace(/\D/g, '');
+    return new Intl.NumberFormat('en-US').format(Number(num));
+  };
+
+  const [amount, setAmount] = useState(initialAmount > 0 ? formatDisplayAmount(initialAmount.toString()) : '');
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (isOpen) {
-      setAmount(initialAmount.toString());
+      setAmount(initialAmount > 0 ? formatDisplayAmount(initialAmount.toString()) : '');
       // Focus vào input sau khi animation mở hoàn tất
       const timer = setTimeout(() => {
         if (inputRef.current) inputRef.current.focus();
@@ -29,8 +36,8 @@ export default function EditGoalModal({ isOpen, onClose, initialAmount, month, o
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!amount) return;
-    onSave(Number(amount));
+    const numericAmount = Number(amount.replace(/,/g, ''));
+    onSave(numericAmount);
     onClose();
   };
 
@@ -63,9 +70,14 @@ export default function EditGoalModal({ isOpen, onClose, initialAmount, month, o
             <div className="flex items-center justify-center gap-2">
               <input
                 ref={inputRef}
-                type="number"
+                type="text"
+                inputMode="numeric"
+                placeholder="0"
                 value={amount}
-                onChange={(e) => setAmount(e.target.value)}
+                onChange={(e) => {
+                  const rawValue = e.target.value.replace(/\D/g, '');
+                  setAmount(formatDisplayAmount(rawValue));
+                }}
                 className="bg-transparent text-center text-4xl font-black text-white outline-none w-full"
               />
             </div>
@@ -77,7 +89,7 @@ export default function EditGoalModal({ isOpen, onClose, initialAmount, month, o
               <button
                 key={v}
                 type="button"
-                onClick={() => setAmount((v * 1000000).toString())}
+                onClick={() => setAmount(formatDisplayAmount((v * 1000000).toString()))}
                 className="py-3 rounded-2xl bg-white/5 border border-white/5 text-[10px] font-bold text-white hover:bg-[var(--accent-primary)] hover:border-[var(--accent-primary)] transition-all"
               >
                 {v} Triệu

@@ -8,6 +8,7 @@ export interface TransactionData {
   category: string;
   isIncome: boolean;
   date: string;
+  description?: string;
 }
 
 export function useTransactions(startDate?: string, endDate?: string) {
