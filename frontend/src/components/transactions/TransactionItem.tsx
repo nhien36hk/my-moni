@@ -6,7 +6,12 @@ import {
   ShoppingBag, 
   Wallet, 
   CircleDollarSign,
-  Pencil 
+  Banknote,
+  Briefcase,
+  Video,
+  Gift,
+  TrendingUp,
+  Gamepad2
 } from 'lucide-react';
 import { formatMoney } from '../../utils/format';
 import type { TransactionData } from '../../hooks/useTransactions';
@@ -19,12 +24,23 @@ interface TransactionItemProps {
 const getCategoryIcon = (category: string) => {
   const size = 18;
   switch (category) {
+    // Chi tiêu
     case 'Ăn uống': return <Utensils size={size} />;
     case 'Di chuyển': return <Car size={size} />;
     case 'Hóa đơn': return <Zap size={size} />;
     case 'Mua sắm': return <ShoppingBag size={size} />;
-    case 'Thu nhập': return <Wallet size={size} />;
-    default: return <CircleDollarSign size={size} />;
+    case 'Giải trí': return <Gamepad2 size={size} />;
+    
+    // Thu nhập
+    case 'Lương': return <Banknote size={size} />;
+    case 'Tiền làm thêm': return <Briefcase size={size} />;
+    case 'Livestream': return <Video size={size} />;
+    case 'Quà tặng': return <Gift size={size} />;
+    case 'Đầu tư': return <TrendingUp size={size} />;
+    
+    // Mặc định
+    case 'Khác':
+    default: return <Wallet size={size} />;
   }
 };
 
@@ -35,8 +51,9 @@ export default function TransactionItem({ transaction }: TransactionItemProps) {
 
   return (
     <div
+      onClick={() => openModal(transaction)}
       className="group flex items-center gap-3 p-3 rounded-2xl
-                 hover:bg-[rgba(255,255,255,0.03)] transition-colors cursor-pointer"
+                 hover:bg-white/5 active:bg-white/10 transition-all cursor-pointer border border-transparent hover:border-white/5"
     >
       {/* Icon */}
       <div
@@ -62,7 +79,7 @@ export default function TransactionItem({ transaction }: TransactionItemProps) {
         </p>
       </div>
 
-      {/* Amount & Edit */}
+      {/* Amount */}
       <div className="flex items-center gap-3">
         <p
           className="text-sm font-bold tabular-nums shrink-0"
@@ -70,15 +87,6 @@ export default function TransactionItem({ transaction }: TransactionItemProps) {
         >
           {isIncome ? '+' : '-'}{formatMoney(amount)}
         </p>
-        <button 
-          onClick={(e) => {
-            e.stopPropagation();
-            openModal(transaction);
-          }}
-          className="p-2 rounded-xl bg-white/5 text-white/40 hover:text-white hover:bg-white/10 transition-all border border-white/5"
-        >
-          <Pencil size={10} />
-        </button>
       </div>
     </div>
   );

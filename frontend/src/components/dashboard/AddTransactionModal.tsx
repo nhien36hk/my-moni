@@ -10,21 +10,34 @@ import {
   Zap, 
   Gamepad2, 
   Wallet,
-  Pencil
+  Pencil,
+  Banknote,
+  Briefcase,
+  Video,
+  Gift,
+  TrendingUp
 } from 'lucide-react';
 
 import { useTransactions } from '../../hooks/useTransactions';
 import type { TransactionData } from '../../hooks/useTransactions';
-
 import { useModalStore } from '../../store/useModalStore';
 
-const COMMON_CATEGORIES = [
-  { id: '1', name: 'Ăn uống', icon: <Utensils size={20} />, color: '#f472b6' },
-  { id: '2', name: 'Di chuyển', icon: <Car size={20} />, color: '#c084fc' },
-  { id: '3', name: 'Mua sắm', icon: <ShoppingBag size={20} />, color: '#fb7185' },
-  { id: '4', name: 'Hóa đơn', icon: <Zap size={20} />, color: '#fbbf24' },
-  { id: '5', name: 'Giải trí', icon: <Gamepad2 size={20} />, color: '#60a5fa' },
-  { id: '6', name: 'Khác', icon: <Wallet size={20} />, color: '#94a3b8' },
+const EXPENSE_CATEGORIES = [
+  { id: 'e1', name: 'Ăn uống', icon: <Utensils size={20} />, color: '#f472b6' },
+  { id: 'e2', name: 'Di chuyển', icon: <Car size={20} />, color: '#c084fc' },
+  { id: 'e3', name: 'Mua sắm', icon: <ShoppingBag size={20} />, color: '#fb7185' },
+  { id: 'e4', name: 'Hóa đơn', icon: <Zap size={20} />, color: '#fbbf24' },
+  { id: 'e5', name: 'Giải trí', icon: <Gamepad2 size={20} />, color: '#60a5fa' },
+  { id: 'e6', name: 'Khác', icon: <Wallet size={20} />, color: '#94a3b8' },
+];
+
+const INCOME_CATEGORIES = [
+  { id: 'i1', name: 'Lương', icon: <Banknote size={20} />, color: '#10b981' },
+  { id: 'i2', name: 'Tiền làm thêm', icon: <Briefcase size={20} />, color: '#34d399' },
+  { id: 'i3', name: 'Livestream', icon: <Video size={20} />, color: '#8b5cf6' },
+  { id: 'i4', name: 'Quà tặng', icon: <Gift size={20} />, color: '#f59e0b' },
+  { id: 'i5', name: 'Đầu tư', icon: <TrendingUp size={20} />, color: '#3b82f6' },
+  { id: 'i6', name: 'Khác', icon: <Wallet size={20} />, color: '#94a3b8' },
 ];
 
 export default function AddTransactionModal() {
@@ -32,25 +45,47 @@ export default function AddTransactionModal() {
   const [type, setType] = useState<'income' | 'expense'>('expense');
   const [amount, setAmount] = useState('');
   const [note, setNote] = useState('');
-  const [selectedCat, setSelectedCat] = useState(COMMON_CATEGORIES[0].name);
+  const [description, setDescription] = useState('');
+  const [selectedCat, setSelectedCat] = useState(EXPENSE_CATEGORIES[0].name);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const amountInputRef = useRef<HTMLInputElement>(null);
   
   const { addTransaction, updateTransaction } = useTransactions();
+
+  // Helper để format số có dấu phẩy
+  const formatDisplayAmount = (val: string) => {
+    if (!val) return '';
+    const num = val.replace(/\D/g, '');
+    return new Intl.NumberFormat('en-US').format(Number(num));
+  };
+
+  // Danh mục đang hiển thị dựa trên type
+  const currentCategories = type === 'expense' ? EXPENSE_CATEGORIES : INCOME_CATEGORIES;
+
+  // Tự động đổi category về mặc định khi đổi Type (Thu nhập <-> Chi tiêu)
+  useEffect(() => {
+    if (!transactionToEdit && isOpen) {
+      setSelectedCat(currentCategories[0].name);
+      setNote(currentCategories[0].name);
+    }
+  }, [type, isOpen]);
 
   // Auto focus vào ô nhập tiền và init data nếu là sửa
   useEffect(() => {
     if (isOpen) {
       if (transactionToEdit) {
         setType(transactionToEdit.isIncome ? 'income' : 'expense');
-        setAmount(transactionToEdit.amount.toString());
+        setAmount(formatDisplayAmount(transactionToEdit.amount.toString()));
         setNote(transactionToEdit.name);
+        setDescription(transactionToEdit.description || '');
         setSelectedCat(transactionToEdit.category);
       } else {
         setAmount('');
-        setNote(COMMON_CATEGORIES[0].name);
+        setNote('');
+        setDescription('');
         setType('expense');
-        setSelectedCat(COMMON_CATEGORIES[0].name);
+        setSelectedCat(EXPENSE_CATEGORIES[0].name);
+        setNote(EXPENSE_CATEGORIES[0].name);
       }
       setTimeout(() => amountInputRef.current?.focus(), 300);
     } else {
@@ -60,7 +95,12 @@ export default function AddTransactionModal() {
 
   const handleSelectCategory = (catName: string) => {
     setSelectedCat(catName);
-    setNote(catName); // Tự động điền note theo danh mục để nhanh hơn
+    setNote(catName); 
+  };
+
+  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const rawValue = e.target.value.replace(/\D/g, '');
+    setAmount(formatDisplayAmount(rawValue));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -68,11 +108,14 @@ export default function AddTransactionModal() {
     if (!amount || isSubmitting) return;
     
     setIsSubmitting(true);
+    const numericAmount = Number(amount.replace(/,/g, ''));
+    
     const data = {
       name: note || selectedCat,
-      amount: Number(amount),
+      amount: numericAmount,
       category: selectedCat,
       isIncome: type === 'income',
+      description: description,
       date: transactionToEdit ? transactionToEdit.date : new Date().toISOString()
     };
 
@@ -128,7 +171,7 @@ export default function AddTransactionModal() {
                 </button>
               </div>
 
-              <form onSubmit={handleSubmit} className="p-6 space-y-6">
+              <form onSubmit={handleSubmit} className="p-6 space-y-6 max-h-[80vh] overflow-y-auto custom-scrollbar">
                 {/* Income / Expense Toggle */}
                 <div className="flex p-1 bg-white/5 rounded-2xl">
                   <button
@@ -159,27 +202,40 @@ export default function AddTransactionModal() {
                   <div className="relative flex items-center justify-center">
                     <input
                       ref={amountInputRef}
-                      type="number"
-                      inputMode="decimal"
+                      type="text"
+                      inputMode="numeric"
                       placeholder="0"
                       value={amount}
-                      onChange={(e) => setAmount(e.target.value)}
+                      onChange={handleAmountChange}
                       className="w-full bg-transparent text-center text-5xl font-black text-white outline-none placeholder:text-white/10"
                     />
                   </div>
                 </div>
 
-                {/* Note / Description Input */}
-                <div className="space-y-3">
-                   <p className="text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wider">Ghi chú / Tiêu đề</p>
-                   <div className="relative flex items-center bg-white/5 rounded-2xl border border-white/5 px-4 focus-within:border-white/20 transition-all">
-                      <Pencil size={16} className="text-white/20 mr-3" />
-                      <input
-                        type="text"
-                        placeholder="Nội dung giao dịch..."
-                        value={note}
-                        onChange={(e) => setNote(e.target.value)}
-                        className="w-full py-4 bg-transparent text-sm text-white outline-none placeholder:text-white/20"
+                {/* Note & Description Inputs */}
+                <div className="space-y-4">
+                   <div className="space-y-2">
+                      <p className="text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wider">Tiêu đề / Ghi chú nhanh</p>
+                      <div className="relative flex items-center bg-white/5 rounded-2xl border border-white/5 px-4 focus-within:border-white/20 transition-all">
+                          <Pencil size={16} className="text-white/20 mr-3" />
+                          <input
+                            type="text"
+                            placeholder="Nội dung giao dịch..."
+                            value={note}
+                            onChange={(e) => setNote(e.target.value)}
+                            className="w-full py-4 bg-transparent text-sm text-white outline-none placeholder:text-white/20"
+                          />
+                      </div>
+                   </div>
+
+                   <div className="space-y-2">
+                      <p className="text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wider">Chi tiết thêm (không bắt buộc)</p>
+                      <textarea
+                        placeholder="Thêm mô tả chi tiết cho giao dịch này..."
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
+                        rows={2}
+                        className="w-full bg-white/5 rounded-2xl border border-white/5 px-4 py-3 text-sm text-white outline-none focus:border-white/20 transition-all resize-none placeholder:text-white/20"
                       />
                    </div>
                 </div>
@@ -188,7 +244,7 @@ export default function AddTransactionModal() {
                 <div className="space-y-3">
                   <p className="text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wider">Danh mục phổ biến</p>
                   <div className="grid grid-cols-3 gap-3">
-                    {COMMON_CATEGORIES.map((cat) => {
+                    {currentCategories.map((cat) => {
                       const isSelected = selectedCat === cat.name;
                       return (
                         <button
