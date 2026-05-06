@@ -6,12 +6,16 @@ const JWT_SECRET = process.env.JWT_SECRET || 'supersecretkey_budget_app';
 
 exports.register = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, username, password } = req.body;
 
-    // Check if user exists
-    const existingUser = await User.findOne({ email });
+    // Check if user exists (check cả email và username)
+    const existingUser = await User.findOne({ 
+      $or: [{ email }, { username }] 
+    });
+    
     if (existingUser) {
-      return res.status(400).json({ success: false, error: 'Email đã được sử dụng' });
+      const field = existingUser.email === email ? 'Email' : 'Username';
+      return res.status(400).json({ success: false, error: `${field} đã được sử dụng` });
     }
 
     // Hash password
@@ -22,6 +26,7 @@ exports.register = async (req, res) => {
     const user = await User.create({
       name,
       email,
+      username,
       password: hashedPassword
     });
 
@@ -33,18 +38,24 @@ exports.register = async (req, res) => {
 
 exports.login = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { identifier, password } = req.body;
 
-    // Find user
-    const user = await User.findOne({ email });
+    // Find user (bằng email hoặc username)
+    const user = await User.findOne({
+      $or: [
+        { email: identifier.toLowerCase() },
+        { username: identifier.toLowerCase() }
+      ]
+    });
+
     if (!user) {
-      return res.status(400).json({ success: false, error: 'Email hoặc mật khẩu không đúng' });
+      return res.status(400).json({ success: false, error: 'Thông tin đăng nhập không chính xác' });
     }
 
     // Check password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(400).json({ success: false, error: 'Email hoặc mật khẩu không đúng' });
+      return res.status(400).json({ success: false, error: 'Thông tin đăng nhập không chính xác' });
     }
 
     // Create token
@@ -56,7 +67,8 @@ exports.login = async (req, res) => {
       user: {
         id: user._id,
         name: user.name,
-        email: user.email
+        email: user.email,
+        username: user.username
       }
     });
   } catch (error) {

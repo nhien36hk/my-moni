@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
-import { Mail, Lock, ChevronRight } from 'lucide-react';
+import { User, Lock, ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuthActions } from '../hooks/useAuthActions';
 
 export default function Login() {
-  const [email, setEmail] = useState('');
+  const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const { handleLogin, isLoading, error } = useAuthActions();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await handleLogin(email, password);
+    await handleLogin(identifier, password);
   };
 
   return (
@@ -29,14 +29,14 @@ export default function Login() {
           )}
           <div className="space-y-4">
             <div className="space-y-2">
-              <label className="text-xs font-bold text-white/60 ml-1">Email</label>
+              <label className="text-xs font-bold text-white/60 ml-1">Username hoặc Email</label>
               <div className="relative">
-                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" size={18} />
+                <User className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" size={18} />
                 <input 
-                  type="email" 
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="email@example.com"
+                  type="text" 
+                  value={identifier}
+                  onChange={(e) => setIdentifier(e.target.value)}
+                  placeholder="username hoặc email..."
                   className="w-full bg-white/5 border border-white/5 rounded-2xl py-4 pl-12 pr-4 text-white outline-none focus:border-[var(--accent-primary)] transition-all"
                   required
                 />

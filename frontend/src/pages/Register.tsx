@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { User, Mail, Lock, ChevronRight } from 'lucide-react';
+import { User, Mail, Lock, ChevronRight, AtSign } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuthActions } from '../hooks/useAuthActions';
 
 export default function Register() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [localError, setLocalError] = useState<string | null>(null);
@@ -20,7 +21,7 @@ export default function Register() {
       return;
     }
 
-    await handleRegister(name, email, password);
+    await handleRegister(name, email, username, password);
   };
 
   const displayError = localError || apiError;
@@ -49,6 +50,21 @@ export default function Register() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Nguyễn Văn A"
+                  className="w-full bg-white/5 border border-white/5 rounded-2xl py-4 pl-12 pr-4 text-white outline-none focus:border-[var(--accent-primary)] transition-all"
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-white/60 ml-1">Username</label>
+              <div className="relative">
+                <AtSign className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" size={18} />
+                <input 
+                  type="text" 
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  placeholder="username_cua_ban"
                   className="w-full bg-white/5 border border-white/5 rounded-2xl py-4 pl-12 pr-4 text-white outline-none focus:border-[var(--accent-primary)] transition-all"
                   required
                 />

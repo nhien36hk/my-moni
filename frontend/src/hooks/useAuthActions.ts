@@ -9,7 +9,7 @@ export function useAuthActions() {
   const navigate = useNavigate();
   const { login } = useAuth();
 
-  const handleLogin = async (email: string, password: string) => {
+  const handleLogin = async (identifier: string, password: string) => {
     setError(null);
     setIsLoading(true);
 
@@ -17,7 +17,7 @@ export function useAuthActions() {
       const response = await fetch(`${API_BASE_URL}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
+        body: JSON.stringify({ identifier, password })
       });
       const result = await response.json();
 
@@ -39,7 +39,7 @@ export function useAuthActions() {
     }
   };
 
-  const handleRegister = async (name: string, email: string, password: string) => {
+  const handleRegister = async (name: string, email: string, username: string, password: string) => {
     setError(null);
     setIsLoading(true);
 
@@ -47,7 +47,7 @@ export function useAuthActions() {
       const response = await fetch(`${API_BASE_URL}/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, password })
+        body: JSON.stringify({ name, email, username, password })
       });
       const result = await response.json();
 

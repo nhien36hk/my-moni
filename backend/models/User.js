@@ -13,6 +13,15 @@ const userSchema = new mongoose.Schema({
     trim: true,
     lowercase: true
   },
+  username: {
+    type: String,
+    required: true,
+    unique: true,
+    trim: true,
+    lowercase: true,
+    // Validate không cho chứa @ để tránh nhầm lẫn với email
+    match: [/^[a-zA-Z0-9_]+$/, 'Username chỉ được chứa chữ cái, số và dấu gạch dưới']
+  },
   password: {
     type: String,
     required: true
