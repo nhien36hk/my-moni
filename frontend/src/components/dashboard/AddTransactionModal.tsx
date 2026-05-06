@@ -13,13 +13,10 @@ import {
   Pencil
 } from 'lucide-react';
 
-import type { Transaction } from '../../types/dashboard';
+import { useTransactions } from '../../hooks/useTransactions';
+import type { TransactionData } from '../../hooks/useTransactions';
 
-interface AddTransactionModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  transactionToEdit?: Transaction | null;
-}
+import { useModalStore } from '../../store/useModalStore';
 
 const COMMON_CATEGORIES = [
   { id: '1', name: 'Ăn uống', icon: <Utensils size={20} />, color: '#f472b6' },
@@ -30,9 +27,8 @@ const COMMON_CATEGORIES = [
   { id: '6', name: 'Khác', icon: <Wallet size={20} />, color: '#94a3b8' },
 ];
 
-import { useTransactions } from '../../hooks/useTransactions';
-
-export default function AddTransactionModal({ isOpen, onClose, transactionToEdit }: AddTransactionModalProps) {
+export default function AddTransactionModal() {
+  const { isOpen, transactionToEdit, closeModal: onClose } = useModalStore();
   const [type, setType] = useState<'income' | 'expense'>('expense');
   const [amount, setAmount] = useState('');
   const [note, setNote] = useState('');
@@ -82,7 +78,7 @@ export default function AddTransactionModal({ isOpen, onClose, transactionToEdit
 
     let success = false;
     if (transactionToEdit) {
-      success = await updateTransaction(transactionToEdit.id, data);
+      success = await updateTransaction(transactionToEdit._id, data);
     } else {
       success = await addTransaction(data);
     }

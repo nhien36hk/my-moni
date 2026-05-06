@@ -8,27 +8,13 @@ import Settings from './pages/Settings';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import AddTransactionModal from './components/dashboard/AddTransactionModal';
-import type { Transaction } from './types/dashboard';
+import type { TransactionData } from './hooks/useTransactions';
 import { AuthProvider } from './context/AuthContext';
 
+import { useModalStore } from './store/useModalStore';
+
 function App() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [transactionToEdit, setTransactionToEdit] = useState<Transaction | null>(null);
-
-  const openModal = () => {
-    setTransactionToEdit(null); // Reset khi thêm mới
-    setIsModalOpen(true);
-  };
-
-  const openEditModal = (tx: Transaction) => {
-    setTransactionToEdit(tx);
-    setIsModalOpen(true);
-  };
-
-  const closeModal = () => {
-    setIsModalOpen(false);
-    setTransactionToEdit(null);
-  };
+  const isOpen = useModalStore(state => state.isOpen);
 
   return (
     <AuthProvider>
@@ -38,22 +24,16 @@ function App() {
         <Route path="/register" element={<Register />} />
 
         {/* Main App Routes - Dùng Layout chung */}
-        <Route path="/" element={<Layout onAddClick={openModal} />}>
-          <Route index element={<Dashboard onEditTransaction={openEditModal} />} />
-          <Route path="transactions" element={<Transactions onEditTransaction={openEditModal} />} />
+        <Route path="/" element={<Layout />}>
+          <Route index element={<Dashboard />} />
+          <Route path="transactions" element={<Transactions />} />
           <Route path="goals" element={<Goals />} />
           <Route path="settings" element={<Settings />} />
         </Route>
       </Routes>
 
-      {/* Modal chỉ render khi đang mở, tránh gọi hook khi không cần */}
-      {isModalOpen && (
-        <AddTransactionModal 
-          isOpen={isModalOpen} 
-          onClose={closeModal} 
-          transactionToEdit={transactionToEdit}
-        />
-      )}
+      {/* Modal tự quản lý thông qua Zustand Store */}
+      {isOpen && <AddTransactionModal />}
     </AuthProvider>
   );
 }

@@ -3,14 +3,10 @@ import { Outlet } from 'react-router-dom';
 import Header from './Header';
 import BottomNav from './BottomNav';
 
-interface LayoutProps {
-  onAddClick: () => void;
-}
-
-export default function Layout({ onAddClick }: LayoutProps) {
+export default function Layout() {
   return (
     <div className="min-h-screen flex flex-col w-full">
-      <Header onAddClick={onAddClick} />
+      <Header />
 
       {/* Page Content */}
       <main className="flex-1 w-full px-4 pb-24 pt-4 md:pb-12 md:px-6 md:pt-8">
@@ -20,7 +16,7 @@ export default function Layout({ onAddClick }: LayoutProps) {
         </div>
       </main>
 
-      <BottomNav onAddClick={onAddClick} />
+      <BottomNav />
     </div>
   );
 }

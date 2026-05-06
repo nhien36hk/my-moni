@@ -1,4 +1,4 @@
-1. Confirm password
+ - 1. Confirm password
 2. Phần giao dịch thêm thu nhập hiển thị danh sách khác
 3. Thêm dấu phẩy khi nhập tiền giao dịch
 4. Xóa số 0 khi thêm mục tiêu

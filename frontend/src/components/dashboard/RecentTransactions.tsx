@@ -1,13 +1,12 @@
-import { Pencil } from 'lucide-react';
-import type { Transaction } from '../../types/dashboard';
-import { formatMoney } from '../../utils/format';
+import TransactionItem from '../transactions/TransactionItem';
+import type { TransactionData } from '../../hooks/useTransactions';
+import { useModalStore } from '../../store/useModalStore';
 
 interface RecentTransactionsProps {
-  transactions: Transaction[];
-  onEdit?: (transaction: Transaction) => void;
+  transactions: TransactionData[];
 }
 
-export default function RecentTransactions({ transactions, onEdit }: RecentTransactionsProps) {
+export default function RecentTransactions({ transactions }: RecentTransactionsProps) {
   return (
     <section className="glass-card p-5 md:p-6">
       <div className="flex justify-between items-center mb-4">
@@ -21,53 +20,10 @@ export default function RecentTransactions({ transactions, onEdit }: RecentTrans
 
       <div className="space-y-1">
         {transactions.map((tx) => (
-          <div
-            key={tx.id}
-            className="group flex items-center gap-3 p-3 rounded-2xl
-                       hover:bg-[rgba(255,255,255,0.03)] transition-colors cursor-pointer"
-          >
-            {/* Icon */}
-            <div
-              className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0
-                         transition-transform group-hover:scale-105"
-              style={{
-                background: tx.isIncome
-                  ? 'rgba(16, 185, 129, 0.12)'
-                  : 'rgba(251, 207, 232, 0.15)',
-                color: tx.isIncome ? 'var(--success)' : 'var(--accent-primary)',
-              }}
-            >
-              {tx.icon}
-            </div>
-
-            {/* Info */}
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-[var(--text-primary)] truncate">
-                {tx.name}
-              </p>
-              <p className="text-xs text-[var(--text-secondary)]">
-                {tx.category} • {tx.date}
-              </p>
-            </div>
-
-            {/* Amount & Edit */}
-            <div className="flex items-center gap-3">
-              <p
-                className="text-sm font-bold tabular-nums shrink-0"
-                style={{ color: tx.isIncome ? 'var(--success)' : 'var(--danger)' }}
-              >
-                {tx.isIncome ? '+' : '-'}{formatMoney(tx.amount)}
-              </p>
-              {onEdit && (
-                <button 
-                  onClick={() => onEdit(tx)}
-                  className="p-2 rounded-xl bg-white/5 text-white/40 hover:text-white hover:bg-white/10 transition-all border border-white/5"
-                >
-                  <Pencil size={10} />
-                </button>
-              )}
-            </div>
-          </div>
+          <TransactionItem 
+            key={tx._id} 
+            transaction={tx} 
+          />
         ))}
       </div>
     </section>

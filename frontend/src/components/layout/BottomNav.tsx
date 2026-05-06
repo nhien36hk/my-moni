@@ -1,11 +1,9 @@
 import { LayoutDashboard, ArrowUpDown, Target, Plus, User } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
+import { useModalStore } from '../../store/useModalStore';
 
-interface BottomNavProps {
-  onAddClick: () => void;
-}
-
-export default function BottomNav({ onAddClick }: BottomNavProps) {
+export default function BottomNav() {
+  const openModal = useModalStore(state => state.openModal);
   return (
     <nav
       className="fixed bottom-0 left-0 right-0 z-50 md:hidden"
@@ -44,7 +42,7 @@ export default function BottomNav({ onAddClick }: BottomNavProps) {
 
         {/* Nút FAB ở giữa */}
         <button
-          onClick={onAddClick}
+          onClick={() => openModal()}
           className="w-14 h-14 -mt-8 rounded-2xl flex items-center justify-center
                      text-white shadow-lg transition-transform active:scale-90"
           style={{

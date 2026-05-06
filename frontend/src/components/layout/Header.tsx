@@ -1,11 +1,9 @@
 import { Bell, Settings, Plus } from 'lucide-react';
 import { NavLink, Link } from 'react-router-dom';
+import { useModalStore } from '../../store/useModalStore';
 
-interface HeaderProps {
-  onAddClick: () => void;
-}
-
-export default function Header({ onAddClick }: HeaderProps) {
+export default function Header() {
+  const openModal = useModalStore(state => state.openModal);
   return (
     <header
       className="sticky top-0 z-40 w-full"
@@ -70,7 +68,7 @@ export default function Header({ onAddClick }: HeaderProps) {
           {/* Actions */}
           <div className="flex items-center gap-2 md:gap-3">
             <button 
-              onClick={onAddClick}
+              onClick={() => openModal()}
               className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-white transition-all hover:scale-[1.02] active:scale-95"
               style={{
                 background: 'var(--gradient-primary)',
