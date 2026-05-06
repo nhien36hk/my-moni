@@ -36,8 +36,8 @@ export default function Goals() {
         />
       </section>
 
-      {/* Lịch sử mục tiêu có thể truyền dữ liệu goals vào sau */}
-      <GoalHistory />
+      {/* Lịch sử mục tiêu */}
+      <GoalHistory goals={goals} />
 
       <div className="p-4 rounded-2xl bg-[var(--accent-primary)]/5 border border-[var(--accent-primary)]/10">
         <p className="text-xs text-[var(--text-secondary)] leading-relaxed italic">
