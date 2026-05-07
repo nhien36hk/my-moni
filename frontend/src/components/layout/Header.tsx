@@ -27,7 +27,7 @@ export default function Header() {
                 WebkitTextFillColor: 'transparent',
               }}
             >
-              BudgetFlow
+              MyMony
             </h1>
           </Link>
 

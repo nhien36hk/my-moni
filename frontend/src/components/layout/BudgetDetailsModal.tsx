@@ -22,11 +22,11 @@ export default function BudgetDetailsModal({ isOpen, onClose, budget }: BudgetDe
   return (
     <div className="fixed inset-0 z-50 grid place-items-center p-4">
       <div 
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
+        className="absolute inset-0 bg-black/80 backdrop-blur-md transition-opacity"
         onClick={onClose}
       />
 
-      <div className="relative w-full max-w-md glass-card rounded-3xl p-6 shadow-2xl animate-in zoom-in-95 duration-200">
+      <div className="relative w-full max-w-md bg-[#1a1625] border border-white/10 rounded-3xl p-6 shadow-2xl animate-in zoom-in-95 duration-200">
         <button 
           onClick={onClose}
           className="absolute top-4 right-4 p-2 rounded-full hover:bg-white/10 text-white/50 hover:text-white transition-colors"
