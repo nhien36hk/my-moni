@@ -11,5 +11,6 @@
 11. Hai chế độ, chế độ cá nhân và chế độ gia đình. Chế độ cá nhân thì là mặc định, vào trong cài đặt sẽ có chuyển chế độ mặc định sang cá nhân hay gia đình, gia đình yêu cầu nhập id và password hoặc là tạo mới như tạo tài khoản cá nhân. Chế độ gia đình khi mà nhập giao dịch thì sẽ ghi tên người nhập để mà phân biệt
  - 12. Phần sửa sẽ được hiển thị ở trong thông tin chi tiết
  - 13. Hiện tại kiểu như nó đang chưa đăng nhập vẫn hiển thị trang chủ.
-14. Thêm phần username để đăng nhập, có thể đăng nhập username hoặc gmail nhập cả hai trong 1 input
-15. Ẩn pencil trong giao dịch gần và nhấn vào là sẽ hiển thị modal
+ - 14. Thêm phần username để đăng nhập, có thể đăng nhập username hoặc gmail nhập cả hai trong 1 input
+ - 15. Ẩn pencil trong giao dịch gần và nhấn vào là sẽ hiển thị modal
+16. Quên password gửi mail 
