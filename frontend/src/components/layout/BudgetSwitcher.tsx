@@ -1,9 +1,14 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Wallet, ChevronDown, Check, Users, User } from 'lucide-react';
+import { Wallet, ChevronDown, Check, Users, User, Settings, LogIn } from 'lucide-react';
 import { useBudgetStore } from '../../store/useBudgetStore';
+import JoinBudgetModal from './JoinBudgetModal';
+import BudgetDetailsModal from './BudgetDetailsModal';
 
 export default function BudgetSwitcher() {
   const [isOpen, setIsOpen] = useState(false);
+  const [isJoinModalOpen, setIsJoinModalOpen] = useState(false);
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  
   const dropdownRef = useRef<HTMLDivElement>(null);
   const { budgets, activeBudgetId, setActiveBudget, getActiveBudget } = useBudgetStore();
   
@@ -22,62 +27,109 @@ export default function BudgetSwitcher() {
   if (!activeBudget) return null;
 
   return (
-    <div className="relative" ref={dropdownRef}>
-      <button 
-        onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-3 py-1.5 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-all active:scale-95"
-      >
-        <div 
-          className="w-2 h-2 rounded-full" 
-          style={{ backgroundColor: activeBudget.color || 'var(--accent-primary)' }}
-        ></div>
-        <span className="text-xs font-bold text-white max-w-[80px] truncate">
-          {activeBudget.name}
-        </span>
-        <ChevronDown size={14} className={`text-white/40 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
-      </button>
+    <>
+      <div className="relative" ref={dropdownRef}>
+        <button 
+          onClick={() => setIsOpen(!isOpen)}
+          className="flex items-center gap-2 px-3 py-1.5 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-all active:scale-95"
+        >
+          <div 
+            className="w-2 h-2 rounded-full" 
+            style={{ backgroundColor: activeBudget.color || 'var(--accent-primary)' }}
+          ></div>
+          <span className="text-xs font-bold text-white max-w-[80px] truncate">
+            {activeBudget.name}
+          </span>
+          <ChevronDown size={14} className={`text-white/40 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+        </button>
 
-      {isOpen && (
-        <div className="absolute top-full right-0 mt-2 w-56 glass-card p-2 border border-white/10 shadow-2xl animate-in fade-in zoom-in duration-200 z-50">
-          <p className="px-3 py-2 text-[10px] font-black uppercase tracking-wider text-white/30">Chọn ngân quỹ</p>
-          
-          <div className="space-y-1">
-            {budgets.map((budget) => (
-              <button
-                key={budget._id}
-                onClick={() => {
-                  setActiveBudget(budget._id);
-                  setIsOpen(false);
-                }}
-                className={`w-full flex items-center justify-between p-2.5 rounded-xl transition-all ${
-                  activeBudgetId === budget._id 
-                    ? 'bg-[var(--accent-primary)]/10 text-[var(--accent-primary)]' 
-                    : 'text-white/60 hover:bg-white/5 hover:text-white'
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-white/5">
-                    {budget.type === 'family' ? <Users size={16} /> : <User size={16} />}
-                  </div>
-                  <div className="text-left">
-                    <p className="text-xs font-bold">{budget.name}</p>
-                    <p className="text-[10px] opacity-50">{budget.type === 'family' ? 'Gia đình' : 'Cá nhân'}</p>
-                  </div>
+        {isOpen && (
+          <div className="absolute top-full right-0 mt-2 w-64 glass-card p-2 border border-white/10 shadow-2xl animate-in fade-in zoom-in duration-200 z-50">
+            <p className="px-3 py-2 text-[10px] font-black uppercase tracking-wider text-white/30">Chọn ngân quỹ</p>
+            
+            <div className="space-y-1">
+              {budgets.map((budget) => (
+                <div 
+                  key={budget._id}
+                  className={`group w-full flex items-center gap-1 rounded-xl transition-all ${
+                    activeBudgetId === budget._id 
+                      ? 'bg-[var(--accent-primary)]/10' 
+                      : 'hover:bg-white/5'
+                  }`}
+                >
+                  <button
+                    onClick={() => {
+                      setActiveBudget(budget._id);
+                      setIsOpen(false);
+                    }}
+                    className="flex-1 flex items-center justify-between p-2.5 rounded-xl transition-all text-left"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 rounded-lg bg-white/5">
+                        {budget.type === 'family' ? <Users size={16} /> : <User size={16} />}
+                      </div>
+                      <div>
+                        <p className={`text-xs font-bold ${activeBudgetId === budget._id ? 'text-[var(--accent-primary)]' : 'text-white/60 group-hover:text-white'}`}>
+                          {budget.name}
+                        </p>
+                        <p className="text-[10px] opacity-40">{budget.type === 'family' ? 'Gia đình' : 'Cá nhân'}</p>
+                      </div>
+                    </div>
+                    {activeBudgetId === budget._id && <Check size={14} className="text-[var(--accent-primary)]" />}
+                  </button>
+
+                  {/* Nút cài đặt chỉ hiện khi ví đang active */}
+                  {activeBudgetId === budget._id && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setIsDetailsModalOpen(true);
+                      }}
+                      className="p-2 mr-1 rounded-lg text-white/20 hover:text-white hover:bg-white/10 transition-all"
+                      title="Cài đặt ngân quỹ"
+                    >
+                      <Settings size={14} />
+                    </button>
+                  )}
                 </div>
-                {activeBudgetId === budget._id && <Check size={14} />}
-              </button>
-            ))}
-          </div>
+              ))}
+            </div>
 
-          <div className="mt-2 pt-2 border-t border-white/5">
-            <button className="w-full flex items-center gap-3 p-2.5 rounded-xl text-white/40 hover:text-white hover:bg-white/5 transition-all text-xs font-semibold">
-              <PlusIcon />
-              Tạo ví gia đình mới
-            </button>
+            <div className="mt-2 pt-2 border-t border-white/5 space-y-1">
+              <button 
+                className="w-full flex items-center gap-3 p-2.5 rounded-xl text-white/40 hover:text-white hover:bg-white/5 transition-all text-xs font-semibold"
+              >
+                <PlusIcon />
+                Tạo ví gia đình mới
+              </button>
+              <button 
+                onClick={() => {
+                  setIsOpen(false);
+                  setIsJoinModalOpen(true);
+                }}
+                className="w-full flex items-center gap-3 p-2.5 rounded-xl text-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)]/10 transition-all text-xs font-semibold"
+              >
+                <div className="w-8 h-8 rounded-lg bg-[var(--accent-secondary)]/10 flex items-center justify-center">
+                  <LogIn size={14} />
+                </div>
+                Tham gia ví bằng ID
+              </button>
+            </div>
           </div>
-        </div>
-      )}
-    </div>
+        )}
+      </div>
+
+      <JoinBudgetModal 
+        isOpen={isJoinModalOpen} 
+        onClose={() => setIsJoinModalOpen(false)} 
+      />
+      
+      <BudgetDetailsModal 
+        isOpen={isDetailsModalOpen} 
+        onClose={() => setIsDetailsModalOpen(false)} 
+        budget={activeBudget}
+      />
+    </>
   );
 }
 
@@ -88,3 +140,4 @@ function PlusIcon() {
     </div>
   );
 }
+

@@ -64,6 +64,17 @@ export default function Header() {
             >
               Mục tiêu
             </NavLink>
+            <NavLink 
+              to="/settings" 
+              className={({ isActive }) => 
+                `px-4 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+                  isActive ? 'bg-white/10 text-white shadow-sm' : 'text-[var(--text-secondary)] hover:text-white'
+                }`
+              }
+            >
+              Cá nhân
+            </NavLink>
+
           </nav>
 
           {/* Actions */}
@@ -81,16 +92,6 @@ export default function Header() {
             </button>
 
             <BudgetSwitcher />
-
-            <div className="hidden xs:flex items-center bg-white/5 p-1 rounded-xl border border-white/5">
-              <button className="p-1.5 text-[var(--text-secondary)] hover:text-white transition-colors relative">
-                <Bell size={18} />
-                <span className="absolute top-1 right-1 w-1.5 h-1.5 bg-[var(--danger)] rounded-full border border-[var(--bg-primary)]"></span>
-              </button>
-              <Link to="/settings" className="p-1.5 text-[var(--text-secondary)] hover:text-white transition-colors">
-                <Settings size={18} />
-              </Link>
-            </div>
           </div>
         </div>
       </div>

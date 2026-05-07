@@ -1,12 +1,19 @@
 import { create } from 'zustand';
-import { API_BASE_URL } from '../api/config';
+import { fetchWithAuth } from '../api/config';
+
+export interface BudgetMember {
+  _id: string;
+  name: string;
+  username: string;
+  email: string;
+}
 
 export interface Budget {
   _id: string;
   name: string;
   type: 'personal' | 'family';
   owner: string;
-  members: string[];
+  members: BudgetMember[];
   color: string;
 }
 
@@ -19,6 +26,7 @@ interface BudgetState {
   fetchBudgets: () => Promise<void>;
   setActiveBudget: (id: string) => void;
   getActiveBudget: () => Budget | undefined;
+  joinBudget: (budgetId: string) => Promise<{ success: boolean; error?: string }>;
 }
 
 export const useBudgetStore = create<BudgetState>((set, get) => ({
@@ -30,14 +38,7 @@ export const useBudgetStore = create<BudgetState>((set, get) => ({
   fetchBudgets: async () => {
     set({ loading: true, error: null });
     try {
-      const token = localStorage.getItem('auth_token');
-      if (!token) return;
-
-      const response = await fetch(`${API_BASE_URL}/budgets`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      const response = await fetchWithAuth('/budgets');
       const result = await response.json();
 
       if (result.success) {
@@ -77,5 +78,24 @@ export const useBudgetStore = create<BudgetState>((set, get) => ({
   getActiveBudget: () => {
     const { budgets, activeBudgetId } = get();
     return budgets.find(b => b._id === activeBudgetId);
+  },
+
+  joinBudget: async (budgetId: string) => {
+    try {
+      const response = await fetchWithAuth('/budgets/join', {
+        method: 'POST',
+        body: JSON.stringify({ budgetId })
+      });
+      const result = await response.json();
+
+      if (result.success) {
+        await get().fetchBudgets(); // Refresh danh sách ví
+        get().setActiveBudget(budgetId); // Auto switch sang ví vừa join
+        return { success: true };
+      }
+      return { success: false, error: result.error };
+    } catch (err: any) {
+      return { success: false, error: 'Không thể kết nối máy chủ' };
+    }
   }
 }));
