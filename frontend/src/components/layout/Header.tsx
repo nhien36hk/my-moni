@@ -20,7 +20,7 @@ export default function Header() {
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2">
             <h1
-              className="text-xl font-black italic tracking-tighter"
+              className="text-xl font-black italic tracking-tight pr-2"
               style={{
                 background: 'var(--gradient-primary)',
                 WebkitBackgroundClip: 'text',
