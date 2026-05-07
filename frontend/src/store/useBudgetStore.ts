@@ -27,6 +27,7 @@ interface BudgetState {
   setActiveBudget: (id: string) => void;
   getActiveBudget: () => Budget | undefined;
   joinBudget: (budgetId: string) => Promise<{ success: boolean; error?: string }>;
+  createBudget: (data: { name: string, color: string }) => Promise<{ success: boolean; error?: string }>;
 }
 
 export const useBudgetStore = create<BudgetState>((set, get) => ({
@@ -96,6 +97,25 @@ export const useBudgetStore = create<BudgetState>((set, get) => ({
       return { success: false, error: result.error };
     } catch (err: any) {
       return { success: false, error: 'Không thể kết nối máy chủ' };
+    }
+  },
+
+  createBudget: async (data: { name: string, color: string }) => {
+    try {
+      const response = await fetchWithAuth('/budgets', {
+        method: 'POST',
+        body: JSON.stringify({ ...data, type: 'family' }) // Mặc định tạo là family
+      });
+      const result = await response.json();
+
+      if (result.success) {
+        await get().fetchBudgets();
+        get().setActiveBudget(result.data._id); // Switch sang ví mới tạo
+        return { success: true };
+      }
+      return { success: false, error: result.error };
+    } catch (err: any) {
+      return { success: false, error: 'Lỗi kết nối' };
     }
   }
 }));

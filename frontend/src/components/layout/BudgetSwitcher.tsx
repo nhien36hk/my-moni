@@ -1,13 +1,15 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Wallet, ChevronDown, Check, Users, User, Settings, LogIn } from 'lucide-react';
+import { Wallet, ChevronDown, Check, Users, User, Settings, LogIn, Plus } from 'lucide-react';
 import { useBudgetStore } from '../../store/useBudgetStore';
 import JoinBudgetModal from './JoinBudgetModal';
 import BudgetDetailsModal from './BudgetDetailsModal';
+import CreateBudgetModal from './CreateBudgetModal';
 
 export default function BudgetSwitcher() {
   const [isOpen, setIsOpen] = useState(false);
   const [isJoinModalOpen, setIsJoinModalOpen] = useState(false);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   
   const dropdownRef = useRef<HTMLDivElement>(null);
   const { budgets, activeBudgetId, setActiveBudget, getActiveBudget } = useBudgetStore();
@@ -97,9 +99,15 @@ export default function BudgetSwitcher() {
 
             <div className="mt-2 pt-2 border-t border-white/5 space-y-1">
               <button 
+                onClick={() => {
+                  setIsOpen(false);
+                  setIsCreateModalOpen(true);
+                }}
                 className="w-full flex items-center gap-3 p-2.5 rounded-xl text-white/40 hover:text-white hover:bg-white/5 transition-all text-xs font-semibold"
               >
-                <PlusIcon />
+                <div className="w-8 h-8 rounded-lg border border-dashed border-white/20 flex items-center justify-center">
+                  <Plus size={14} />
+                </div>
                 Tạo ví gia đình mới
               </button>
               <button 
@@ -119,6 +127,11 @@ export default function BudgetSwitcher() {
         )}
       </div>
 
+      <CreateBudgetModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+      />
+
       <JoinBudgetModal 
         isOpen={isJoinModalOpen} 
         onClose={() => setIsJoinModalOpen(false)} 
@@ -133,11 +146,4 @@ export default function BudgetSwitcher() {
   );
 }
 
-function PlusIcon() {
-  return (
-    <div className="w-8 h-8 rounded-lg border border-dashed border-white/20 flex items-center justify-center">
-      <span className="text-lg">+</span>
-    </div>
-  );
-}
 
