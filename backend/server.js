@@ -25,11 +25,13 @@ app.get('/api/health', (req, res) => {
 const authRoutes = require('./routes/authRoutes');
 const transactionRoutes = require('./routes/transactionRoutes');
 const goalRoutes = require('./routes/goalRoutes');
+const budgetRoutes = require('./routes/budgetRoutes');
 
 // Mount Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/transactions', transactionRoutes);
 app.use('/api/goals', goalRoutes);
+app.use('/api/budgets', budgetRoutes);
 
 app.listen(PORT, () => {
   console.log(`🚀 Backend is running on port ${PORT}`);

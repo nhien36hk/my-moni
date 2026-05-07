@@ -1,10 +1,21 @@
 const mongoose = require('mongoose');
 
 const transactionSchema = new mongoose.Schema({
-  user: {
+  budget: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
+    ref: 'Budget',
     required: true
+  },
+  created_by: {
+    _id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true
+    },
+    full_name: {
+      type: String,
+      required: true
+    }
   },
   name: {
     type: String,
@@ -39,7 +50,7 @@ const transactionSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Thêm index để tối ưu hóa việc truy vấn theo user và thời gian (vì bạn hay lọc theo tháng)
-transactionSchema.index({ user: 1, date: -1 });
+// Thêm index để tối ưu hóa việc truy vấn theo budget và thời gian
+transactionSchema.index({ budget: 1, date: -1 });
 
 module.exports = mongoose.model('Transaction', transactionSchema);

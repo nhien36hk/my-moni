@@ -1,7 +1,7 @@
 export const API_BASE_URL = '/api';
 
 export const fetchWithAuth = async (endpoint: string, options: RequestInit = {}) => {
-  const token = localStorage.getItem('budget_token');
+  const token = localStorage.getItem('auth_token');
   
   const headers = {
     'Content-Type': 'application/json',
@@ -18,7 +18,7 @@ export const fetchWithAuth = async (endpoint: string, options: RequestInit = {})
   // Guard: Không redirect nếu đang ở trang auth (tránh vòng lặp vô tận)
   const isAuthPage = window.location.pathname === '/login' || window.location.pathname === '/register';
   if (response.status === 401 && !isAuthPage) {
-    localStorage.removeItem('budget_token');
+    localStorage.removeItem('auth_token');
     localStorage.removeItem('budget_user');
     window.location.href = '/login';
   }

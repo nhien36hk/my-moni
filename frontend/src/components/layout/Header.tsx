@@ -1,6 +1,7 @@
 import { Bell, Settings, Plus } from 'lucide-react';
 import { NavLink, Link } from 'react-router-dom';
 import { useModalStore } from '../../store/useModalStore';
+import BudgetSwitcher from './BudgetSwitcher';
 
 export default function Header() {
   const openModal = useModalStore(state => state.openModal);
@@ -66,7 +67,7 @@ export default function Header() {
           </nav>
 
           {/* Actions */}
-          <div className="flex items-center gap-2 md:gap-3">
+          <div className="flex items-center gap-2 md:gap-4">
             <button 
               onClick={() => openModal()}
               className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-white transition-all hover:scale-[1.02] active:scale-95"
@@ -76,10 +77,12 @@ export default function Header() {
               }}
             >
               <Plus size={16} strokeWidth={3} />
-              Thêm giao dịch
+              Giao dịch
             </button>
 
-            <div className="flex items-center bg-white/5 p-1 rounded-xl border border-white/5">
+            <BudgetSwitcher />
+
+            <div className="hidden xs:flex items-center bg-white/5 p-1 rounded-xl border border-white/5">
               <button className="p-1.5 text-[var(--text-secondary)] hover:text-white transition-colors relative">
                 <Bell size={18} />
                 <span className="absolute top-1 right-1 w-1.5 h-1.5 bg-[var(--danger)] rounded-full border border-[var(--bg-primary)]"></span>

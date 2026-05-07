@@ -1,14 +1,12 @@
 const Transaction = require('../models/Transaction');
+const Budget = require('../models/Budget');
 
 // [GET] Lấy danh sách giao dịch (Có hỗ trợ lọc theo ngày)
 exports.getTransactions = async (req, res) => {
   try {
-    const { startDate, endDate } = req.query;
+    const { startDate, endDate, budgetId } = req.query;
     
-    // Lấy user ID từ token
-    const userId = req.user.id;
-    
-    let filter = { user: userId };
+    let filter = { budget: budgetId };
 
     // Lọc theo khoảng thời gian nếu có truyền lên
     if (startDate && endDate) {
@@ -34,11 +32,14 @@ exports.getTransactions = async (req, res) => {
 // [POST] Thêm giao dịch mới
 exports.addTransaction = async (req, res) => {
   try {
-    const { name, amount, category, isIncome, date, description } = req.body;
-    const userId = req.user.id;
-
+    const { name, amount, category, isIncome, date, description, budgetId } = req.body;
+    
     const newTransaction = await Transaction.create({
-      user: userId,
+      budget: budgetId,
+      created_by: {
+        _id: req.user.id,
+        full_name: req.user.name
+      },
       name,
       amount,
       category,

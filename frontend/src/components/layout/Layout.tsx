@@ -1,9 +1,16 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
 import Header from './Header';
 import BottomNav from './BottomNav';
+import { useBudgetStore } from '../../store/useBudgetStore';
 
 export default function Layout() {
+  const { fetchBudgets } = useBudgetStore();
+
+  useEffect(() => {
+    fetchBudgets();
+  }, [fetchBudgets]);
+
   return (
     <div className="min-h-screen flex flex-col w-full">
       <Header />

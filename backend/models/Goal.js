@@ -1,9 +1,9 @@
 const mongoose = require('mongoose');
 
 const goalSchema = new mongoose.Schema({
-  user: {
+  budget: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
+    ref: 'Budget',
     required: true
   },
   monthKey: {
@@ -30,7 +30,7 @@ const goalSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Mỗi user chỉ có 1 mục tiêu duy nhất cho 1 tháng
-goalSchema.index({ user: 1, monthKey: 1 }, { unique: true });
+// Mỗi budget chỉ có 1 mục tiêu duy nhất cho 1 tháng
+goalSchema.index({ budget: 1, monthKey: 1 }, { unique: true });
 
 module.exports = mongoose.model('Goal', goalSchema);

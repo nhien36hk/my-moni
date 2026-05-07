@@ -74,9 +74,16 @@ export default function TransactionItem({ transaction }: TransactionItemProps) {
         <p className="text-sm font-medium text-[var(--text-primary)] truncate">
           {name}
         </p>
-        <p className="text-xs text-[var(--text-secondary)]">
-          {category} • {formattedDate}
-        </p>
+        <div className="flex items-center gap-2 mt-0.5">
+          <p className="text-[10px] text-[var(--text-secondary)]">
+            {category} • {formattedDate}
+          </p>
+          {transaction.created_by && (
+            <span className="px-1.5 py-0.5 rounded-md bg-white/5 text-[9px] font-bold text-white/30 border border-white/5">
+              {transaction.created_by.full_name}
+            </span>
+          )}
+        </div>
       </div>
 
       {/* Amount */}

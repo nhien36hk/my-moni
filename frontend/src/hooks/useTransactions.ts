@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { fetchWithAuth } from '../api/config';
+import { useBudgetStore } from '../store/useBudgetStore';
 
 export interface TransactionData {
   _id: string;
@@ -9,19 +10,27 @@ export interface TransactionData {
   isIncome: boolean;
   date: string;
   description?: string;
+  budget: string;
+  created_by: {
+    _id: string;
+    full_name: string;
+  };
 }
 
 export function useTransactions(startDate?: string, endDate?: string) {
   const [transactions, setTransactions] = useState<TransactionData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { activeBudgetId } = useBudgetStore();
 
   const fetchTransactions = useCallback(async () => {
+    if (!activeBudgetId) return;
+    
     setLoading(true);
     try {
-      let endpoint = `/transactions`;
+      let endpoint = `/transactions?budgetId=${activeBudgetId}`;
       if (startDate && endDate) {
-        endpoint += `?startDate=${startDate}&endDate=${endDate}`;
+        endpoint += `&startDate=${startDate}&endDate=${endDate}`;
       }
       
       const response = await fetchWithAuth(endpoint);
@@ -37,7 +46,7 @@ export function useTransactions(startDate?: string, endDate?: string) {
     } finally {
       setLoading(false);
     }
-  }, [startDate, endDate]);
+  }, [startDate, endDate, activeBudgetId]);
 
   // Lắng nghe sự kiện toàn cục để tự động đồng bộ hóa các component
   useEffect(() => {
@@ -51,10 +60,12 @@ export function useTransactions(startDate?: string, endDate?: string) {
     };
   }, [fetchTransactions]);
 
-  const addTransaction = async (data: Omit<TransactionData, '_id'>) => {
+  const addTransaction = async (data: Omit<TransactionData, '_id' | 'created_by' | 'budget'>) => {
+    if (!activeBudgetId) return false;
+
     const response = await fetchWithAuth(`/transactions`, {
       method: 'POST',
-      body: JSON.stringify(data)
+      body: JSON.stringify({ ...data, budgetId: activeBudgetId })
     });
     const result = await response.json();
     if (result.success) {

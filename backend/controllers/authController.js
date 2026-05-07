@@ -1,4 +1,5 @@
 const User = require('../models/User');
+const Budget = require('../models/Budget');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
@@ -30,6 +31,14 @@ exports.register = async (req, res) => {
       password: hashedPassword
     });
 
+    // Tự động tạo một ví cá nhân mặc định cho người dùng
+    await Budget.create({
+      name: `Ví của ${user.name}`,
+      type: 'personal',
+      owner: user._id,
+      members: [user._id]
+    });
+
     res.status(201).json({ success: true, message: 'Đăng ký thành công' });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
@@ -59,7 +68,7 @@ exports.login = async (req, res) => {
     }
 
     // Create token
-    const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: '30d' });
+    const token = jwt.sign({ id: user._id, name: user.name }, JWT_SECRET, { expiresIn: '30d' });
 
     res.status(200).json({
       success: true,

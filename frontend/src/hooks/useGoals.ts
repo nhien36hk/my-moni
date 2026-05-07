@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { fetchWithAuth } from '../api/config';
+import { useBudgetStore } from '../store/useBudgetStore';
 
 export interface GoalData {
   _id: string;
@@ -12,11 +13,14 @@ export interface GoalData {
 export function useGoals() {
   const [goals, setGoals] = useState<GoalData[]>([]);
   const [loading, setLoading] = useState(true);
+  const { activeBudgetId } = useBudgetStore();
 
   const fetchGoals = useCallback(async () => {
+    if (!activeBudgetId) return;
+
     setLoading(true);
     try {
-      const response = await fetchWithAuth(`/goals`);
+      const response = await fetchWithAuth(`/goals?budgetId=${activeBudgetId}`);
       const result = await response.json();
       if (result.success) {
         setGoals(result.data);
@@ -26,17 +30,19 @@ export function useGoals() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [activeBudgetId]);
 
   useEffect(() => {
     fetchGoals();
   }, [fetchGoals]);
 
   const upsertGoal = async (monthKey: string, targetAmount: number) => {
+    if (!activeBudgetId) return false;
+
     try {
       const response = await fetchWithAuth(`/goals`, {
         method: 'POST',
-        body: JSON.stringify({ monthKey, targetAmount })
+        body: JSON.stringify({ monthKey, targetAmount, budgetId: activeBudgetId })
       });
       const result = await response.json();
       if (result.success) {

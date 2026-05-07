@@ -25,7 +25,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     // Check local storage for token on mount
-    const storedToken = localStorage.getItem('budget_token');
+    const storedToken = localStorage.getItem('auth_token');
     const storedUser = localStorage.getItem('budget_user');
     
     if (storedToken && storedUser) {
@@ -43,14 +43,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const login = (newToken: string, newUser: User) => {
     setToken(newToken);
     setUser(newUser);
-    localStorage.setItem('budget_token', newToken);
+    localStorage.setItem('auth_token', newToken);
     localStorage.setItem('budget_user', JSON.stringify(newUser));
   };
 
   const logout = () => {
     setToken(null);
     setUser(null);
-    localStorage.removeItem('budget_token');
+    localStorage.removeItem('auth_token');
     localStorage.removeItem('budget_user');
     window.location.href = '/login'; // Redirect to login
   };

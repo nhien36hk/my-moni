@@ -1,12 +1,12 @@
 const Goal = require('../models/Goal');
 
-// [GET] Lấy tất cả mục tiêu của user
+// [GET] Lấy tất cả mục tiêu của một ví (Budget)
 exports.getGoals = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const { budgetId } = req.query;
     
     // Sort tháng mới nhất lên đầu
-    const goals = await Goal.find({ user: userId }).sort({ monthKey: -1 });
+    const goals = await Goal.find({ budget: budgetId }).sort({ monthKey: -1 });
     
     res.status(200).json({
       success: true,
@@ -18,15 +18,14 @@ exports.getGoals = async (req, res) => {
   }
 };
 
-// [POST] Thêm hoặc Cập nhật mục tiêu cho 1 tháng
+// [POST] Thêm hoặc Cập nhật mục tiêu cho 1 tháng của một ví
 exports.upsertGoal = async (req, res) => {
   try {
-    const { monthKey, targetAmount } = req.body;
-    const userId = req.user.id;
+    const { monthKey, targetAmount, budgetId } = req.body;
 
     // Tìm xem tháng này đã có mục tiêu chưa, có rồi thì update, chưa có thì tạo mới (upsert)
     const goal = await Goal.findOneAndUpdate(
-      { user: userId, monthKey },
+      { budget: budgetId, monthKey },
       { targetAmount },
       { new: true, upsert: true, runValidators: true }
     );
