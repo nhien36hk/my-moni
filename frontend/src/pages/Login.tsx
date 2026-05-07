@@ -17,7 +17,7 @@ export default function Login() {
     <div className="min-h-[90vh] flex flex-col justify-center px-4 py-12">
       <div className="w-full max-w-md mx-auto">
         <div className="space-y-2 mb-8 text-center">
-          <h2 className="text-3xl font-black text-white italic tracking-tighter">BudgetFlow</h2>
+          <h2 className="text-3xl font-black text-white italic tracking-tight pr-2">MyMony</h2>
           <p className="text-[var(--text-secondary)] text-sm">Chào mừng bạn quay trở lại!</p>
         </div>
 

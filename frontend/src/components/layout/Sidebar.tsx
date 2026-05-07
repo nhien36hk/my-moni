@@ -32,7 +32,7 @@ export default function Sidebar() {
       {/* Logo */}
       <div className="p-6 pb-2">
         <h1 className="text-xl font-extrabold gradient-text tracking-tight">
-          BudgetFlow
+          <span className="italic pr-2">MyMony</span>
         </h1>
         <p className="text-xs text-[var(--text-secondary)] mt-1">
           Quản lý tài chính thông minh

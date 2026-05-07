@@ -14,3 +14,4 @@
  - 14. Thêm phần username để đăng nhập, có thể đăng nhập username hoặc gmail nhập cả hai trong 1 input
  - 15. Ẩn pencil trong giao dịch gần và nhấn vào là sẽ hiển thị modal
 16. Quên password gửi mail 
+ - 17. Làm rõ hơn thông tin chi tiết và thêm ví 
