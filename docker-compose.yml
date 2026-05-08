@@ -66,6 +66,38 @@ services:
       - budget-network
     restart: always
 
+  # 4. Tự động Backup hàng ngày (Phao cứu sinh)
+  mongo-backup:
+    image: mongo:latest
+    container_name: budget-mongo-backup
+    restart: always
+    environment:
+      - MONGO_HOST=mongodb
+      - MONGO_USER=${MONGO_ROOT_USER}
+      - MONGO_PASS=${MONGO_ROOT_PASSWORD}
+      - MONGO_DB=${MONGO_DB_NAME}
+    volumes:
+      - ./backups:/backup
+    depends_on:
+      - mongodb
+    networks:
+      - budget-network
+    # Script tự động backup mỗi 24h và xóa file cũ trên 14 ngày
+    entrypoint: >
+      sh -c '
+      while true; do
+        echo "--- Bắt đầu sao lưu lúc $$(date) ---"
+        FILE_NAME="/backup/budget-db-backup-$$(date +%Y-%m-%d-%H-%M-%S).gz"
+        mongodump --host $$MONGO_HOST --username $$MONGO_USER --password $$MONGO_PASS --db $$MONGO_DB --archive=$$FILE_NAME --gzip --authenticationDatabase admin
+        if [ $$? -eq 0 ]; then
+          echo "✅ Sao lưu thành công: $$FILE_NAME"
+          find /backup -name "budget-db-backup-*" -mtime +14 -delete
+        else
+          echo "❌ Lỗi: Không thể sao lưu dữ liệu!"
+        fi
+        sleep 86400
+      done'
+
 volumes:
   mongo-data:
 
