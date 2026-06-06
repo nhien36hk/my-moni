@@ -8,6 +8,7 @@ export interface GoalData {
   targetAmount: number;
   actualAmount: number;
   status: 'ongoing' | 'success' | 'failed';
+  type?: 'monthly' | 'yearly';
 }
 
 export function useGoals() {
@@ -36,13 +37,13 @@ export function useGoals() {
     fetchGoals();
   }, [fetchGoals]);
 
-  const upsertGoal = async (monthKey: string, targetAmount: number) => {
+  const upsertGoal = async (monthKey: string, targetAmount: number, type?: 'monthly' | 'yearly') => {
     if (!activeBudgetId) return false;
 
     try {
       const response = await fetchWithAuth(`/goals`, {
         method: 'POST',
-        body: JSON.stringify({ monthKey, targetAmount, budgetId: activeBudgetId })
+        body: JSON.stringify({ monthKey, targetAmount, budgetId: activeBudgetId, type: type || 'monthly' })
       });
       const result = await response.json();
       if (result.success) {

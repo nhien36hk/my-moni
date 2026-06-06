@@ -16,8 +16,11 @@ export const fetchWithAuth = async (endpoint: string, options: RequestInit = {})
 
   // Xử lý lỗi token hết hạn hoặc không hợp lệ ở đây (401)
   // Guard: Không redirect nếu đang ở trang auth (tránh vòng lặp vô tận)
-  const isAuthPage = window.location.pathname === '/login' || window.location.pathname === '/register';
-  if (response.status === 401 && !isAuthPage) {
+  const isPublicPage = 
+    window.location.pathname === '/login' || 
+    window.location.pathname === '/register' || 
+    window.location.pathname.startsWith('/viewer');
+  if (response.status === 401 && !isPublicPage) {
     localStorage.removeItem('auth_token');
     localStorage.removeItem('budget_user');
     window.location.href = '/login';

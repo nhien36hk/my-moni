@@ -11,6 +11,9 @@ const budgetSchema = new mongoose.Schema({
     enum: ['personal', 'family'],
     default: 'personal'
   },
+  password: {
+    type: String
+  },
   owner: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',

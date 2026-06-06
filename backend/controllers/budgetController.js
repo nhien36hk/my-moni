@@ -1,4 +1,5 @@
 const Budget = require('../models/Budget');
+const bcrypt = require('bcryptjs');
 
 // Lấy danh sách ví mà người dùng là thành viên
 exports.getBudgets = async (req, res) => {
@@ -14,7 +15,7 @@ exports.getBudgets = async (req, res) => {
 // Tạo ví mới (ví dụ: ví gia đình)
 exports.createBudget = async (req, res) => {
   try {
-    const { name, type, color, members } = req.body;
+    const { name, type, color, password, members } = req.body;
     
     // Luôn thêm người tạo vào danh sách thành viên
     const budgetMembers = members || [];
@@ -22,12 +23,19 @@ exports.createBudget = async (req, res) => {
       budgetMembers.push(req.user.id);
     }
 
+    let hashedPassword = undefined;
+    if (type === 'family' && password) {
+      const salt = await bcrypt.genSalt(10);
+      hashedPassword = await bcrypt.hash(password, salt);
+    }
+
     const budget = await Budget.create({
       name,
       type: type || 'family',
       owner: req.user.id,
       members: budgetMembers,
-      color
+      color,
+      password: hashedPassword
     });
 
     res.status(201).json({ success: true, data: budget });
@@ -39,7 +47,7 @@ exports.createBudget = async (req, res) => {
 // Tham gia ví bằng ID
 exports.joinBudget = async (req, res) => {
   try {
-    const { budgetId } = req.body;
+    const { budgetId, password } = req.body;
     if (!budgetId) return res.status(400).json({ success: false, error: 'Vui lòng nhập ID ví' });
 
     const budget = await Budget.findById(budgetId);
@@ -48,6 +56,17 @@ exports.joinBudget = async (req, res) => {
     // Kiểm tra xem user đã là thành viên chưa
     if (budget.members.includes(req.user.id)) {
       return res.status(400).json({ success: false, error: 'Bạn đã là thành viên của ví này rồi' });
+    }
+
+    // Kiểm tra mật khẩu nếu ví yêu cầu
+    if (budget.type === 'family' && budget.password) {
+      if (!password) {
+        return res.status(400).json({ success: false, error: 'Mật khẩu ví gia đình là bắt buộc' });
+      }
+      const isMatch = await bcrypt.compare(password, budget.password);
+      if (!isMatch) {
+        return res.status(400).json({ success: false, error: 'Mật khẩu ví gia đình không chính xác' });
+      }
     }
 
     // Thêm user vào ví

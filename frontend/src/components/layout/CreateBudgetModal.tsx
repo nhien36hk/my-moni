@@ -18,6 +18,7 @@ const PRESET_COLORS = [
 
 export default function CreateBudgetModal({ isOpen, onClose }: CreateBudgetModalProps) {
   const [name, setName] = useState('');
+  const [password, setPassword] = useState('');
   const [color, setColor] = useState(PRESET_COLORS[0]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -33,13 +34,14 @@ export default function CreateBudgetModal({ isOpen, onClose }: CreateBudgetModal
     setIsSubmitting(true);
     setError(null);
 
-    const result = await createBudget({ name: name.trim(), color });
+    const result = await createBudget({ name: name.trim(), color, password: password.trim() || undefined });
     
     setIsSubmitting(false);
     
     if (result.success) {
       onClose();
       setName('');
+      setPassword('');
     } else {
       setError(result.error || 'Có lỗi xảy ra');
     }
@@ -87,6 +89,19 @@ export default function CreateBudgetModal({ isOpen, onClose }: CreateBudgetModal
               placeholder="VD: Gia đình nhỏ, Quỹ ăn chơi..."
               className="w-full px-4 py-3 bg-[#130f1c] border border-white/10 rounded-xl text-white placeholder-white/20 focus:outline-none focus:border-[var(--accent-primary)] transition-all"
               required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1.5">
+              Mật khẩu truy cập (không bắt buộc)
+            </label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Nhập mật khẩu cho ví..."
+              className="w-full px-4 py-3 bg-[#130f1c] border border-white/10 rounded-xl text-white placeholder-white/20 focus:outline-none focus:border-[var(--accent-primary)] transition-all"
             />
           </div>
 

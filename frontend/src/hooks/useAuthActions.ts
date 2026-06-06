@@ -68,11 +68,40 @@ export function useAuthActions() {
     }
   };
 
+  const handleForgotPassword = async (email: string) => {
+    setError(null);
+    setIsLoading(true);
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/forgot-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+      const result = await response.json();
+
+      if (result.success) {
+        return { success: true, message: result.message };
+      } else {
+        const errorMsg = result.error || 'Yêu cầu thất bại';
+        setError(errorMsg);
+        return { success: false, error: errorMsg };
+      }
+    } catch (err) {
+      const errorMsg = 'Có lỗi xảy ra, vui lòng thử lại';
+      setError(errorMsg);
+      return { success: false, error: errorMsg };
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return {
     isLoading,
     error,
     handleLogin,
     handleRegister,
+    handleForgotPassword,
     setError // Cho phép UI xóa lỗi khi cần
   };
 }

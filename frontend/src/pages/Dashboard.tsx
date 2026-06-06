@@ -20,7 +20,14 @@ function getGoalStatus(balance: number, goal: number): GoalStatus {
 }
 
 export default function Dashboard() {
-  const { transactions, loading: txLoading, income, expense, balance } = useTransactions();
+  const currentDate = new Date();
+  const currentMonthKey = currentDate.toISOString().slice(0, 7); // "2026-05"
+  
+  // Thời gian bắt đầu và kết thúc của tháng hiện tại
+  const startDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1, 0, 0, 0, 0).toISOString();
+  const endDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0, 23, 59, 59, 999).toISOString();
+
+  const { transactions, loading: txLoading, income, expense, balance } = useTransactions(startDate, endDate);
   const { goals, loading: goalLoading } = useGoals();
 
   if (txLoading || goalLoading) {
@@ -28,7 +35,6 @@ export default function Dashboard() {
   }
 
   // Lấy mục tiêu tháng hiện tại
-  const currentMonthKey = new Date().toISOString().slice(0, 7); // "2026-05"
   const currentGoal = goals.find(g => g.monthKey === currentMonthKey)?.targetAmount || 0;
 
   const status = getGoalStatus(balance, currentGoal);

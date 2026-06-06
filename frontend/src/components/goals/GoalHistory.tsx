@@ -8,11 +8,10 @@ interface GoalHistoryProps {
 }
 
 export default function GoalHistory({ goals }: GoalHistoryProps) {
-  const currentMonthKey = new Date().toISOString().slice(0, 7); // "2026-05"
-
-  // Lọc bỏ tháng hiện tại và sắp xếp theo thời gian mới nhất lên đầu
+  const currentMonthKey = new Date().toISOString().slice(0, 7);
+  // Lọc bỏ tháng hiện tại, mục tiêu năm (đang ẩn) và sắp xếp theo thời gian mới nhất lên đầu
   const sortedGoals = [...goals]
-    .filter(g => g.monthKey !== currentMonthKey)
+    .filter(g => g.monthKey !== currentMonthKey && g.type !== 'yearly')
     .sort((a, b) => b.monthKey.localeCompare(a.monthKey));
 
   if (sortedGoals.length === 0) {

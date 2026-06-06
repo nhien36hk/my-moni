@@ -16,6 +16,12 @@ const goalSchema = new mongoose.Schema({
     min: 0 // Số tiền kỳ vọng tiết kiệm trong tháng
   },
   
+  type: {
+    type: String,
+    enum: ['monthly', 'yearly'],
+    default: 'monthly'
+  },
+  
   /* --- PHẦN LỊCH SỬ (CHỐT SỔ) --- */
   actualAmount: {
     type: Number,
@@ -30,7 +36,7 @@ const goalSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Mỗi budget chỉ có 1 mục tiêu duy nhất cho 1 tháng
-goalSchema.index({ budget: 1, monthKey: 1 }, { unique: true });
+// Mỗi budget chỉ có 1 mục tiêu duy nhất cho 1 mốc thời gian và loại tương ứng
+goalSchema.index({ budget: 1, monthKey: 1, type: 1 }, { unique: true });
 
 module.exports = mongoose.model('Goal', goalSchema);

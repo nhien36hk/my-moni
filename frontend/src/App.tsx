@@ -7,6 +7,7 @@ import Goals from './pages/Goals';
 import Settings from './pages/Settings';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import MarkdownViewer from './pages/MarkdownViewer';
 import AddTransactionModal from './components/dashboard/AddTransactionModal';
 import type { TransactionData } from './hooks/useTransactions';
 import { AuthProvider } from './context/AuthContext';
@@ -22,6 +23,7 @@ function App() {
         {/* Auth Routes - Không dùng Layout chung */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/viewer" element={<MarkdownViewer />} />
 
         {/* Main App Routes - Dùng Layout chung */}
         <Route path="/" element={<Layout />}>

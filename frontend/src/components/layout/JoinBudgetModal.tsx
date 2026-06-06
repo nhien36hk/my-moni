@@ -9,6 +9,7 @@ interface JoinBudgetModalProps {
 
 export default function JoinBudgetModal({ isOpen, onClose }: JoinBudgetModalProps) {
   const [budgetId, setBudgetId] = useState('');
+  const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
@@ -23,13 +24,14 @@ export default function JoinBudgetModal({ isOpen, onClose }: JoinBudgetModalProp
     setIsSubmitting(true);
     setError(null);
 
-    const result = await joinBudget(budgetId.trim());
+    const result = await joinBudget(budgetId.trim(), password.trim() || undefined);
     
     setIsSubmitting(false);
     
     if (result.success) {
       onClose();
       setBudgetId('');
+      setPassword('');
     } else {
       setError(result.error || 'Có lỗi xảy ra');
     }
@@ -80,6 +82,19 @@ export default function JoinBudgetModal({ isOpen, onClose }: JoinBudgetModalProp
                 required
               />
             </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1.5">
+              Mật khẩu ngân quỹ (nếu có)
+            </label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Nhập mật khẩu ví gia đình..."
+              className="w-full px-4 py-3 bg-[#130f1c] border border-white/10 rounded-xl text-white placeholder-white/20 focus:outline-none focus:border-[var(--accent-primary)] focus:ring-1 focus:ring-[var(--accent-primary)] transition-all"
+            />
             {error && <p className="mt-2 text-xs text-[var(--danger)]">{error}</p>}
           </div>
 

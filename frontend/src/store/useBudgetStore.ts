@@ -26,8 +26,8 @@ interface BudgetState {
   fetchBudgets: () => Promise<void>;
   setActiveBudget: (id: string) => void;
   getActiveBudget: () => Budget | undefined;
-  joinBudget: (budgetId: string) => Promise<{ success: boolean; error?: string }>;
-  createBudget: (data: { name: string, color: string }) => Promise<{ success: boolean; error?: string }>;
+  joinBudget: (budgetId: string, password?: string) => Promise<{ success: boolean; error?: string }>;
+  createBudget: (data: { name: string, color: string, password?: string }) => Promise<{ success: boolean; error?: string }>;
 }
 
 export const useBudgetStore = create<BudgetState>((set, get) => ({
@@ -50,9 +50,10 @@ export const useBudgetStore = create<BudgetState>((set, get) => ({
 
         // Nếu chưa có ví active hoặc ví cũ không còn tồn tại trong danh sách mới
         if (!currentId || !data.find(b => b._id === currentId)) {
-          // Ưu tiên chọn ví cá nhân làm mặc định
-          const personalBudget = data.find(b => b.type === 'personal') || data[0];
-          currentId = personalBudget._id;
+          // Ưu tiên chọn ví theo chế độ mặc định
+          const defaultMode = localStorage.getItem('default_mode') || 'personal';
+          const preferredBudget = data.find(b => b.type === defaultMode) || data.find(b => b.type === 'personal') || data[0];
+          currentId = preferredBudget._id;
           localStorage.setItem('activeBudgetId', currentId);
         }
 
@@ -81,11 +82,11 @@ export const useBudgetStore = create<BudgetState>((set, get) => ({
     return budgets.find(b => b._id === activeBudgetId);
   },
 
-  joinBudget: async (budgetId: string) => {
+  joinBudget: async (budgetId: string, password?: string) => {
     try {
       const response = await fetchWithAuth('/budgets/join', {
         method: 'POST',
-        body: JSON.stringify({ budgetId })
+        body: JSON.stringify({ budgetId, password })
       });
       const result = await response.json();
 
@@ -100,7 +101,7 @@ export const useBudgetStore = create<BudgetState>((set, get) => ({
     }
   },
 
-  createBudget: async (data: { name: string, color: string }) => {
+  createBudget: async (data: { name: string, color: string, password?: string }) => {
     try {
       const response = await fetchWithAuth('/budgets', {
         method: 'POST',

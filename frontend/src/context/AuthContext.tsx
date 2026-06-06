@@ -20,25 +20,27 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState<string | null>(null);
+  const [user, setUser] = useState<User | null>(() => {
+    const storedUser = localStorage.getItem('budget_user');
+    try {
+      return storedUser ? JSON.parse(storedUser) : null;
+    } catch {
+      return null;
+    }
+  });
+  const [token, setToken] = useState<string | null>(() => {
+    return localStorage.getItem('auth_token');
+  });
 
   useEffect(() => {
-    // Check local storage for token on mount
-    const storedToken = localStorage.getItem('auth_token');
-    const storedUser = localStorage.getItem('budget_user');
-    
-    if (storedToken && storedUser) {
-      setToken(storedToken);
-      setUser(JSON.parse(storedUser));
-    } else {
-      // Tránh vòng lặp vô tận khi ở trang auth
-      const isAuthPage = window.location.pathname === '/login' || window.location.pathname === '/register';
-      if (!isAuthPage) {
-        window.location.href = '/login';
-      }
+    const isPublicPage = 
+      window.location.pathname === '/login' || 
+      window.location.pathname === '/register' || 
+      window.location.pathname.startsWith('/viewer');
+    if (!token && !isPublicPage) {
+      window.location.href = '/login';
     }
-  }, []);
+  }, [token]);
 
   const login = (newToken: string, newUser: User) => {
     setToken(newToken);

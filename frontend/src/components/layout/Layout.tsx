@@ -1,15 +1,23 @@
 import React, { useEffect } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, Navigate } from 'react-router-dom';
 import Header from './Header';
 import BottomNav from './BottomNav';
 import { useBudgetStore } from '../../store/useBudgetStore';
+import { useAuth } from '../../context/AuthContext';
 
 export default function Layout() {
+  const { isAuthenticated } = useAuth();
   const { fetchBudgets } = useBudgetStore();
 
   useEffect(() => {
-    fetchBudgets();
-  }, [fetchBudgets]);
+    if (isAuthenticated) {
+      fetchBudgets();
+    }
+  }, [isAuthenticated, fetchBudgets]);
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
 
   return (
     <div className="min-h-screen flex flex-col w-full">

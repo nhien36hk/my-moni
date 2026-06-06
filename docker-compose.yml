@@ -60,6 +60,9 @@ services:
     volumes:
       - ./frontend:/app
       - /app/node_modules
+      - /root/.gemini/antigravity-cli/brain:/app/public/brain
+      - /root/.gemini/GEMINI.md:/app/public/GEMINI.md
+      - /root/my-todo:/app/public/todo
     depends_on:
       - backend
     networks:

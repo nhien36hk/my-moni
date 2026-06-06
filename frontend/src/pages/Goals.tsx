@@ -26,7 +26,7 @@ export default function Goals() {
   const monthDisplay = `Tháng ${currentMonthKey.split('-')[1]}/${currentMonthKey.split('-')[0]}`;
   
   // Lấy mục tiêu của tháng hiện tại
-  const currentGoal = goals.find(g => g.monthKey === currentMonthKey)?.targetAmount || 0;
+  const currentGoal = goals.find(g => g.monthKey === currentMonthKey && g.type !== 'yearly')?.targetAmount || 0;
 
   const handleSaveGoal = async (newAmount: number) => {
     await upsertGoal(currentMonthKey, newAmount);
