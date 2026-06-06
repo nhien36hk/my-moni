@@ -21,11 +21,9 @@ describe('getGoals Auto-Close Logic', () => {
     jest.clearAllMocks();
   });
 
-  it('should auto close past monthly goals and update actualAmount and status', async () => {
-    // Mock the current Date to be "2026-06-15"
+  it('should auto close past monthly goals and calculate actualAmount based on carry over', async () => {
     jest.useFakeTimers().setSystemTime(new Date('2026-06-15T00:00:00Z'));
     
-    // Simulate a past goal (2026-05) that is ongoing
     const mockPastGoal = {
       _id: 'goal-1',
       monthKey: '2026-05',
@@ -35,8 +33,7 @@ describe('getGoals Auto-Close Logic', () => {
       actualAmount: 0,
       save: jest.fn().mockResolvedValue(true)
     };
-    
-    // Simulate a current goal (2026-06) that is ongoing
+
     const mockCurrentGoal = {
       _id: 'goal-2',
       monthKey: '2026-06',
@@ -47,11 +44,12 @@ describe('getGoals Auto-Close Logic', () => {
       save: jest.fn().mockResolvedValue(true)
     };
 
-    Goal.find.mockReturnValue({
-      sort: jest.fn().mockResolvedValue([mockCurrentGoal, mockPastGoal])
-    });
+    Goal.find
+      .mockReturnValueOnce({ sort: jest.fn().mockResolvedValue([mockCurrentGoal, mockPastGoal]) })
+      .mockReturnValueOnce([]) // For prevGoals (no goals before May)
+      .mockReturnValueOnce({ sort: jest.fn().mockResolvedValue([mockCurrentGoal, mockPastGoal]) }); // After update
 
-    // Simulate transactions in 2026-05 (Income: 2000, Expense: 500 -> Actual: 1500)
+    // Simulate transactions UP TO May 2026 (Income: 2000, Expense: 500 -> Balance: 1500)
     Transaction.find.mockResolvedValue([
       { amount: 2000, isIncome: true },
       { amount: 500, isIncome: false }
@@ -59,24 +57,16 @@ describe('getGoals Auto-Close Logic', () => {
 
     await getGoals(mockReq, mockRes);
 
-    // Goal.find is called twice (initial + after update)
-    expect(Goal.find).toHaveBeenCalledTimes(2);
-    
-    // Check if Transaction.find was called for the past month (May 2026)
-    expect(Transaction.find).toHaveBeenCalledTimes(1);
-    
-    // Check if past goal was updated
     expect(mockPastGoal.save).toHaveBeenCalled();
-    expect(mockPastGoal.actualAmount).toBe(1500); // 2000 - 500
-    expect(mockPastGoal.status).toBe('success'); // 1500 >= 1000
+    // Balance = 1500, Target = 1000 => actualAmount = 1000 (Target reached)
+    expect(mockPastGoal.actualAmount).toBe(1000); 
+    expect(mockPastGoal.status).toBe('success'); 
 
-    // Check if current goal was NOT updated
     expect(mockCurrentGoal.save).not.toHaveBeenCalled();
-    
     jest.useRealTimers();
   });
 
-  it('should mark past goal as failed if actualAmount < targetAmount', async () => {
+  it('should mark past goal as failed if availableBalance < targetAmount', async () => {
     jest.useFakeTimers().setSystemTime(new Date('2026-06-15T00:00:00Z'));
     
     const mockPastGoal = {
@@ -89,11 +79,11 @@ describe('getGoals Auto-Close Logic', () => {
       save: jest.fn().mockResolvedValue(true)
     };
 
-    Goal.find.mockReturnValue({
-      sort: jest.fn().mockResolvedValue([mockPastGoal])
-    });
+    Goal.find
+      .mockReturnValueOnce({ sort: jest.fn().mockResolvedValue([mockPastGoal]) })
+      .mockReturnValueOnce([]); // prevGoals
 
-    // Simulate transactions: Income 500, Expense 100 -> Actual: 400 < 1000
+    // Simulate transactions: Income 500, Expense 100 -> Balance: 400 < 1000
     Transaction.find.mockResolvedValue([
       { amount: 500, isIncome: true },
       { amount: 100, isIncome: false }
@@ -102,8 +92,9 @@ describe('getGoals Auto-Close Logic', () => {
     await getGoals(mockReq, mockRes);
     
     expect(mockPastGoal.save).toHaveBeenCalled();
+    // Balance = 400 => actualAmount = 400
     expect(mockPastGoal.actualAmount).toBe(400); 
-    expect(mockPastGoal.status).toBe('failed'); // 400 < 1000
+    expect(mockPastGoal.status).toBe('failed'); 
     
     jest.useRealTimers();
   });

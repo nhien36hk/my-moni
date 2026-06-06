@@ -23,11 +23,11 @@ export default function Dashboard() {
   const currentDate = new Date();
   const currentMonthKey = currentDate.toISOString().slice(0, 7); // "2026-05"
   
-  // Thời gian bắt đầu và kết thúc của tháng hiện tại
-  const startDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1, 0, 0, 0, 0).toISOString();
-  const endDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0, 23, 59, 59, 999).toISOString();
+  const startDateObj = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1, 0, 0, 0, 0);
+  const startDate = startDateObj.toISOString();
 
-  const { transactions, loading: txLoading, income, expense, balance } = useTransactions(startDate, endDate);
+  // Load ALL transactions to calculate carry-over
+  const { transactions, loading: txLoading } = useTransactions();
   const { goals, loading: goalLoading } = useGoals();
 
   if (txLoading || goalLoading) {
@@ -37,25 +37,57 @@ export default function Dashboard() {
   // Lấy mục tiêu tháng hiện tại
   const currentGoal = goals.find(g => g.monthKey === currentMonthKey)?.targetAmount || 0;
 
-  const status = getGoalStatus(balance, currentGoal);
+  // 1. Phân loại giao dịch: Quá khứ vs Tháng này
+  const pastTxs = transactions.filter(t => new Date(t.date) < startDateObj);
+  const currentTxs = transactions.filter(t => new Date(t.date) >= startDateObj);
+
+  // 2. Tính số dư quá khứ
+  const pastIncome = pastTxs.filter(t => t.isIncome).reduce((sum, t) => sum + t.amount, 0);
+  const pastExpense = pastTxs.filter(t => !t.isIncome).reduce((sum, t) => sum + t.amount, 0);
+  const pastBalanceRaw = pastIncome - pastExpense;
+
+  // 3. Trừ đi mục tiêu tiết kiệm của các tháng trước (Chỉ tính mục tiêu tháng)
+  const pastGoals = goals.filter(g => g.monthKey < currentMonthKey && g.type !== 'yearly');
+  const totalPastSaved = pastGoals.reduce((sum, g) => {
+    // Nếu quá khứ đạt mục tiêu -> trừ target. Nếu không đạt -> trừ actualAmount.
+    // Thực tế để đơn giản theo yêu cầu: "trừ đi mục tiêu tiết kiệm" -> dùng targetAmount.
+    // Dùng actualAmount sẽ chính xác hơn nếu backend lưu actualAmount = số tiền thực gởi vào tiết kiệm.
+    return sum + (g.actualAmount > 0 ? g.actualAmount : g.targetAmount);
+  }, 0);
+
+  const carryOver = pastBalanceRaw - totalPastSaved;
+
+  // 4. Tính toán cho tháng hiện tại
+  const currentMonthIncome = currentTxs.filter(t => t.isIncome).reduce((sum, t) => sum + t.amount, 0);
+  const currentMonthExpense = currentTxs.filter(t => !t.isIncome).reduce((sum, t) => sum + t.amount, 0);
+
+  // Tổng thu = Số dư mang sang + Thu nhập tháng này
+  const displayIncome = currentMonthIncome + (carryOver > 0 ? carryOver : 0);
+  const displayExpense = currentMonthExpense + (carryOver < 0 ? Math.abs(carryOver) : 0);
+  const displayBalance = displayIncome - displayExpense;
+
+  const status = getGoalStatus(displayBalance, currentGoal);
   const statusCfg = STATUS_CONFIG[status];
+
+  // Giao dịch gần đây (chỉ lấy trong tháng này)
+  const recentTxs = currentTxs.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 5);
 
   return (
     <div className="space-y-5">
       <BalanceHero 
-        balance={balance} 
-        income={income} 
-        expense={expense} 
+        balance={displayBalance} 
+        income={displayIncome} 
+        expense={displayExpense} 
       />
 
       <SavingGoal 
-        balance={balance} 
+        balance={displayBalance} 
         goal={currentGoal} 
         statusCfg={statusCfg} 
       />
 
       <RecentTransactions 
-        transactions={transactions.slice(0, 5)} 
+        transactions={recentTxs} 
       />
     </div>
   );

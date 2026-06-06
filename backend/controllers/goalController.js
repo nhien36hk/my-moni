@@ -19,14 +19,32 @@ exports.getGoals = async (req, res) => {
         const startDate = new Date(year, month - 1, 1);
         const endDate = new Date(year, month, 0, 23, 59, 59, 999);
 
+        // Lấy TẤT CẢ giao dịch từ trước đến cuối tháng đó
         const txs = await Transaction.find({
           budget: budgetId,
-          date: { $gte: startDate, $lte: endDate }
+          date: { $lte: endDate }
         });
 
-        const income = txs.filter(t => t.isIncome).reduce((sum, t) => sum + t.amount, 0);
-        const expense = txs.filter(t => !t.isIncome).reduce((sum, t) => sum + t.amount, 0);
-        const actualAmount = income - expense;
+        // Tính số dư tổng quát đến hết tháng đó
+        const totalIncome = txs.filter(t => t.isIncome).reduce((sum, t) => sum + t.amount, 0);
+        const totalExpense = txs.filter(t => !t.isIncome).reduce((sum, t) => sum + t.amount, 0);
+        const totalBalanceRaw = totalIncome - totalExpense;
+
+        // Trừ đi các mục tiêu của các tháng TRƯỚC tháng đang xét
+        const prevGoals = await Goal.find({
+          budget: budgetId,
+          type: 'monthly',
+          monthKey: { $lt: goal.monthKey }
+        });
+        const totalPrevSaved = prevGoals.reduce((sum, g) => sum + (g.actualAmount > 0 ? g.actualAmount : g.targetAmount), 0);
+
+        // Số dư khả dụng trong tháng đó (sau khi đã trừ mục tiêu tháng cũ)
+        const availableBalance = totalBalanceRaw - totalPrevSaved;
+
+        // Số tiền thực tế tiết kiệm được trong tháng đó
+        // Nếu số dư lớn hơn mục tiêu -> đạt mục tiêu (lưu actual = target để đẩy số thừa sang tháng sau)
+        // Nếu số dư < mục tiêu -> chỉ lưu actual = số dư thực tế
+        const actualAmount = availableBalance >= goal.targetAmount ? goal.targetAmount : Math.max(0, availableBalance);
 
         goal.actualAmount = actualAmount;
         goal.status = actualAmount >= goal.targetAmount ? 'success' : 'failed';
