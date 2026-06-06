@@ -49,10 +49,9 @@ export default function Dashboard() {
   // 3. Trừ đi mục tiêu tiết kiệm của các tháng trước (Chỉ tính mục tiêu tháng)
   const pastGoals = goals.filter(g => g.monthKey < currentMonthKey && g.type !== 'yearly');
   const totalPastSaved = pastGoals.reduce((sum, g) => {
-    // Nếu quá khứ đạt mục tiêu -> trừ target. Nếu không đạt -> trừ actualAmount.
-    // Thực tế để đơn giản theo yêu cầu: "trừ đi mục tiêu tiết kiệm" -> dùng targetAmount.
-    // Dùng actualAmount sẽ chính xác hơn nếu backend lưu actualAmount = số tiền thực gởi vào tiết kiệm.
-    return sum + (g.actualAmount > 0 ? g.actualAmount : g.targetAmount);
+    // Luôn lấy actualAmount vì Backend đã tính toán chuẩn xác số tiền tiết kiệm được.
+    // Trừ trường hợp đặc biệt chưa được tính thì lấy min của (pastBalanceRaw, targetAmount)
+    return sum + (g.status === 'ongoing' ? Math.min(pastBalanceRaw, g.targetAmount) : g.actualAmount);
   }, 0);
 
   const carryOver = pastBalanceRaw - totalPastSaved;
